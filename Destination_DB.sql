@@ -656,3 +656,24 @@ ALTER TABLE `Package`
   FOREIGN KEY (`agentID`) REFERENCES `Agent` (`userID`)
   ON UPDATE CASCADE
   ON DELETE RESTRICT;
+
+ALTER TABLE Package
+ADD COLUMN agentID INT NULL,
+ADD CONSTRAINT fk_package_agent
+FOREIGN KEY (agentID) REFERENCES Agent(userID)
+ON DELETE SET NULL ON UPDATE CASCADE;
+
+UPDATE Package SET agentID = 11 WHERE packageID IN (1,5);
+UPDATE Package SET agentID = 12 WHERE packageID IN (2);
+UPDATE Package SET agentID = 13 WHERE packageID IN (3);
+UPDATE Package SET agentID = 14 WHERE packageID IN (4,8);
+UPDATE Package SET agentID = 18 WHERE packageID IN (6,9);
+UPDATE Package SET agentID = 17 WHERE packageID IN (7,10);
+CREATE INDEX idx_package_filter
+ON Package(destinationCountry, destinationCity, pricePerPerson, startDate, endDate, status);
+
+CREATE INDEX idx_review_package
+ON Review(packageID, overallScore);
+
+CREATE INDEX idx_booking_user_package
+ON Booking(userID, packageID);
