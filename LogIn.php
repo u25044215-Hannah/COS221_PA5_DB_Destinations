@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 require_once "config.php";
 
+// Get JSON input from JavaScript fetch()
 $input = json_decode(file_get_contents("php://input"), true);
 
 if (!$input) {
@@ -24,9 +25,11 @@ if (!$input) {
     exit();
 }
 
+// Get values from request
 $email = trim($input["email"] ?? "");
 $password = trim($input["password"] ?? "");
 
+// Basic validation
 if ($email === "") {
     echo json_encode([
         "success" => false,
@@ -51,14 +54,16 @@ if ($password === "") {
     exit();
 }
 
-// ----------------------------
-// Find user by email
-// ----------------------------
-
+/*
+|--------------------------------------------------------------------------
+| THIS IS WHERE YOU ADD THE QUERY CODE
+|--------------------------------------------------------------------------
+| This searches the User table for the email address that was typed in.
+*/
 $stmt = $conn->prepare("
-    SELECT UserID, Name, Surname, Email, Password, UserType
-    FROM Users
-    WHERE Email = ?
+    SELECT userID, firstName, lastName, emailAddress, PasswordHash, userType
+    FROM `User`
+    WHERE emailAddress = ?
 ");
 
 if (!$stmt) {
@@ -74,6 +79,11 @@ $stmt->execute();
 
 $result = $stmt->get_result();
 
+/*
+|--------------------------------------------------------------------------
+| CHECK IF EMAIL EXISTS
+|--------------------------------------------------------------------------
+*/
 if ($result->num_rows === 0) {
     echo json_encode([
         "success" => false,
@@ -84,12 +94,14 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-// ----------------------------
-// Raw password check
-// ----------------------------
-// This compares the typed password directly to the stored database password.
-
-if ($password !== $user["Password"]) {
+/*
+|--------------------------------------------------------------------------
+| THIS IS WHERE YOU ADD THE PASSWORD_VERIFY CODE
+|--------------------------------------------------------------------------
+| This checks the raw password typed by the user against the hashed password
+| stored in the PasswordHash column.
+*/
+if (!password_verify($password, $user["PasswordHash"])) {
     echo json_encode([
         "success" => false,
         "message" => "Invalid email or password"
@@ -97,24 +109,26 @@ if ($password !== $user["Password"]) {
     exit();
 }
 
-// ----------------------------
-// Store login details in session
-// ----------------------------
-
-$_SESSION["userID"] = $user["UserID"];
-$_SESSION["email"] = $user["Email"];
-$_SESSION["userType"] = $user["UserType"];
-$_SESSION["name"] = $user["Name"];
+/*
+|--------------------------------------------------------------------------
+| LOGIN SUCCESSFUL
+|--------------------------------------------------------------------------
+| If the code reaches this point, the email exists and the password is correct.
+*/
+$_SESSION["userID"] = $user["userID"];
+$_SESSION["emailAddress"] = $user["emailAddress"];
+$_SESSION["userType"] = $user["userType"];
+$_SESSION["firstName"] = $user["firstName"];
 
 echo json_encode([
     "success" => true,
     "message" => "Login successful",
     "user" => [
-        "userID" => $user["UserID"],
-        "name" => $user["Name"],
-        "surname" => $user["Surname"],
-        "email" => $user["Email"],
-        "userType" => $user["UserType"]
+        "userID" => $user["userID"],
+        "firstName" => $user["firstName"],
+        "lastName" => $user["lastName"],
+        "emailAddress" => $user["emailAddress"],
+        "userType" => $user["userType"]
     ]
 ]);
 
