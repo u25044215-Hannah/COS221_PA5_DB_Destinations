@@ -562,6 +562,7 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 DROP TABLE IF EXISTS `User`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `User` (
   `userID` int(11) NOT NULL AUTO_INCREMENT,
   `firstName` varchar(100) NOT NULL,
@@ -571,9 +572,11 @@ CREATE TABLE `User` (
   `nationality` varchar(100) DEFAULT NULL,
   `DOB` date DEFAULT NULL,
   `userType` enum('Traveller','Agent') NOT NULL,
+  `PasswordHash` varchar(255) NOT NULL,
   PRIMARY KEY (`userID`),
   UNIQUE KEY `emailAddress` (`emailAddress`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -583,27 +586,29 @@ CREATE TABLE `User` (
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
+
 INSERT INTO `User` VALUES
-(1,'Liam','Anderson','liam.anderson@email.com','+1-202-555-0101','American','1990-03-15','Traveller'),
-(2,'Sophia','Martinez','sophia.martinez@email.com','+1-305-555-0182','Mexican','1985-07-22','Traveller'),
-(3,'Noah','Williams','noah.williams@email.com','+44-20-7946-0301','British','1992-11-08','Traveller'),
-(4,'Olivia','Johnson','olivia.johnson@email.com','+61-2-5550-0412','Australian','1988-01-30','Traveller'),
-(5,'Ethan','Brown','ethan.brown@email.com','+1-416-555-0523','Canadian','1995-06-14','Traveller'),
-(6,'Ava','Taylor','ava.taylor@email.com','+49-30-5550-0634','German','1993-09-27','Traveller'),
-(7,'James','Davis','james.davis@email.com','+33-1-5550-0745','French','1987-04-03','Traveller'),
-(8,'Isabella','Wilson','isabella.wilson@email.com','+39-06-5550-0856','Italian','1991-12-19','Traveller'),
-(9,'Lucas','Moore','lucas.moore@email.com','+27-11-555-0967','South African','1996-08-11','Traveller'),
-(10,'Mia','Jackson','mia.jackson@email.com','+81-3-5550-1078','Japanese','1989-02-25','Traveller'),
-(11,'Oliver','White','oliver.white@travelco.com','+1-212-555-1101','American','1980-05-10','Agent'),
-(12,'Emma','Harris','emma.harris@voyages.com','+44-20-7946-1202','British','1978-09-18','Agent'),
-(13,'William','Clark','william.clark@globetrip.com','+1-310-555-1303','American','1982-03-22','Agent'),
-(14,'Amelia','Lewis','amelia.lewis@luxtravel.com','+61-2-5550-1404','Australian','1975-11-07','Agent'),
-(15,'Benjamin','Robinson','ben.robinson@worldwide.com','+49-89-5550-1505','German','1983-07-30','Agent'),
-(16,'Charlotte','Walker','charlotte.walker@trips.com','+33-1-5550-1606','French','1979-01-14','Agent'),
-(17,'Henry','Hall','henry.hall@adventours.com','+39-02-5550-1707','Italian','1977-06-28','Agent'),
-(18,'Harper','Young','harper.young@trekmate.com','+27-21-555-1808','South African','1984-10-05','Agent'),
-(19,'Alexander','King','alex.king@elitetravel.com','+81-3-5550-1909','Japanese','1981-04-16','Agent'),
-(20,'Evelyn','Scott','evelyn.scott@nomadic.com','+1-604-555-2010','Canadian','1986-08-23','Agent');
+(1,'Liam','Anderson','liam.anderson@email.com','+1-202-555-0101','American','1990-03-15','Traveller','$2y$12$WciDkSUTzREOsBk20vKXm.MlQDk8fbAQtc7fANUtdhLNadmEuxIdu'),
+(2,'Sophia','Martinez','sophia.martinez@email.com','+1-305-555-0182','Mexican','1985-07-22','Traveller','$2y$12$Bau20F8S/sedmyx98gEMKuQAFOYybVlBuGOKMecYvkumy1hxv/UVa'),
+(3,'Noah','Williams','noah.williams@email.com','+44-20-7946-0301','British','1992-11-08','Traveller','$2y$12$PCS4Zjld/3AfwU/ukBxFx.0.vh56H19Jh0bIRL6RXU.gATgcExWka'),
+(4,'Olivia','Johnson','olivia.johnson@email.com','+61-2-5550-0412','Australian','1988-01-30','Traveller','$2y$12$p.pG8L3Z3PahG117xFTR2uugYw0kD.3U24iHCf3.j5a4y5XSZAI72'),
+(5,'Ethan','Brown','ethan.brown@email.com','+1-416-555-0523','Canadian','1995-06-14','Traveller','$2y$12$4AJVD6cQkf6LH597HOQYCOGUtn1Epxwat6vl0KUOrvLbTwY3HD/yG'),
+(6,'Ava','Taylor','ava.taylor@email.com','+49-30-5550-0634','German','1993-09-27','Traveller','$2y$12$djrGjbtUQGYhl0/vd/5.V.Diwlwstt1QY7AD9T2dgPTdLuHn8p7ee'),
+(7,'James','Davis','james.davis@email.com','+33-1-5550-0745','French','1987-04-03','Traveller','$2y$12$LIYlwPCB0nQ3VZlXBNEnhunUmrOzXE3Wg/4iI3XlbBNWuDeKnN6VW'),
+(8,'Isabella','Wilson','isabella.wilson@email.com','+39-06-5550-0856','Italian','1991-12-19','Traveller','$2y$12$scShhvghjx1unG/uxE4EvO7ZZDELCXUQlAHE6q9e8dt8vKd6KjRVa'),
+(9,'Lucas','Moore','lucas.moore@email.com','+27-11-555-0967','South African','1996-08-11','Traveller','$2y$12$f5R46mhelquhpWVKT62YtuGLlhcccDyoRQHTHN85Qdk5.zUdS0lMy'),
+(10,'Mia','Jackson','mia.jackson@email.com','+81-3-5550-1078','Japanese','1989-02-25','Traveller','$2y$12$jXrdEV8gdQrvC0qLV8qwVeRMRhoXbSWc5RZ.6A/8mF5fHgnAUq3Nq'),
+(11,'Oliver','White','oliver.white@travelco.com','+1-212-555-1101','American','1980-05-10','Agent','$2y$12$9rrEH0Rq9xPC3isoCj7dauWVk4ubeoLMZ7EE2.ns6fipXKvWh55.m'),
+(12,'Emma','Harris','emma.harris@voyages.com','+44-20-7946-1202','British','1978-09-18','Agent','$2y$12$KTDruuNRXlcEtE.znxcu3.8df9L79QqEC/nOcXF9vLrHdOW1/6pM2'),
+(13,'William','Clark','william.clark@globetrip.com','+1-310-555-1303','American','1982-03-22','Agent','$2y$12$osO7BnDeMpxkK20amhes/OThOvnsLjTcAOCOyq9MhZ3Ctkjzna812'),
+(14,'Amelia','Lewis','amelia.lewis@luxtravel.com','+61-2-5550-1404','Australian','1975-11-07','Agent','$2y$12$Ow/dJ56TARMdIIcv.H/A7uDYsO0bIr/VNLVr1znaRVAxZprY2GyJm'),
+(15,'Benjamin','Robinson','ben.robinson@worldwide.com','+49-89-5550-1505','German','1983-07-30','Agent','$2y$12$dkNn88UpoLIvyRc78kJM3.BX5x1G1zrxJyU.ZU6bV/eAOUVs8bTRO'),
+(16,'Charlotte','Walker','charlotte.walker@trips.com','+33-1-5550-1606','French','1979-01-14','Agent','$2y$12$pRYZK3X1fVbYEEUoN1xsN.yQQuXyyhVFxvO8DhzIJrIozXXJ.AjNu'),
+(17,'Henry','Hall','henry.hall@adventours.com','+39-02-5550-1707','Italian','1977-06-28','Agent','$2y$12$3UWDxw80wmV3zJ9UAczr3em2nR8cVErxg84V5LF9wk3ZLPMiAE7PG'),
+(18,'Harper','Young','harper.young@trekmate.com','+27-21-555-1808','South African','1984-10-05','Agent','$2y$12$wjxWcPYEpX87K77BoZSUVO8bxk8mj4TO4JQ/X4s4MOKBMO9v0V24e'),
+(19,'Alexander','King','alex.king@elitetravel.com','+81-3-5550-1909','Japanese','1981-04-16','Agent','$2y$12$EDueRJVaNN0igjI4rkDQO.KI3CEKtc0yFtQB8T9n6CO0CmH/2yGr2'),
+(20,'Evelyn','Scott','evelyn.scott@nomadic.com','+1-604-555-2010','Canadian','1986-08-23','Agent','$2y$12$mms5UGQ5BJac/bE9twv5dOJOKXBhxXaphBkHYP7WL4MZHSiK1bwDO');
+
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
