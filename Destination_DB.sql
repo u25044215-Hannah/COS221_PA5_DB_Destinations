@@ -177,8 +177,7 @@ LOCK TABLES `Excursion` WRITE;
 INSERT INTO `Excursion` VALUES
 (21,'4 hours','Easy','Louvre Pyramid Main Entrance',25),
 (22,'Full day','Moderate','Shinjuku Station South Exit',20),
-(23,'6 hours','Easy','Safari Camp Main Gate',12),
-(24,'8 hours','Easy','Athinios Ferry Port, Santorini',20),
+(23,'6 hours','Easy','Safari Camp Main Gate',12),(24,'8 hours','Easy','Athinios Ferry Port, Santorini',20),
 (25,'4 hours','Easy','Battery Park Ferry Terminal',30),
 (26,'3 hours','Easy','Tegalalang Village Car Park',15),
 (27,'4 days','Hard','CONAF Park Entrance',10),
@@ -357,8 +356,7 @@ INSERT INTO `PackageComponent` VALUES
 (4,4,'Accommodation','Santorini Clifftop Suites','Athens','Greece','Clifftop suites with caldera views.'),
 (5,5,'Accommodation','Manhattan Boutique Hotel','New York','USA','Stylish hotel in Midtown Manhattan.'),
 (6,6,'Accommodation','Ubud Jungle Resort','Bali','Indonesia','Eco-resort surrounded by rice terraces.'),
-(7,7,'Accommodation','Patagonia Base Lodge','Punta Arenas','Chile','Rustic lodge near Torres del Paine.'),
-(8,8,'Accommodation','Burj Al Arab Suite','Dubai','UAE','Iconic ultra-luxury hotel suite.'),
+(7,7,'Accommodation','Patagonia Base Lodge','Punta Arenas','Chile','Rustic lodge near Torres del Paine.'),(8,8,'Accommodation','Burj Al Arab Suite','Dubai','UAE','Iconic ultra-luxury hotel suite.'),
 (9,9,'Accommodation','Cape Grace Hotel','Cape Town','South Africa','Waterfront hotel with mountain views.'),
 (10,10,'Accommodation','Reykjavik Aurora Inn','Reykjavik','Iceland','Cosy inn with northern lights access.'),
 (11,1,'Restaurant','Le Jules Verne','Paris','France','Fine dining inside the Eiffel Tower.'),
@@ -537,8 +535,7 @@ CREATE TABLE `Traveller` (
 --
 
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
-LOCK TABLES `Traveller` WRITE;
-/*!40000 ALTER TABLE `Traveller` DISABLE KEYS */;
+LOCK TABLES `Traveller` WRITE;/*!40000 ALTER TABLE `Traveller` DISABLE KEYS */;
 INSERT INTO `Traveller` VALUES
 (1,'Gold',12),
 (2,'Silver',7),
@@ -623,8 +620,6 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-05-19 13:47:28
-
 
 
 ALTER TABLE `Package`
@@ -657,23 +652,13 @@ ALTER TABLE `Package`
   ON UPDATE CASCADE
   ON DELETE RESTRICT;
 
-ALTER TABLE Package
-ADD COLUMN agentID INT NULL,
-ADD CONSTRAINT fk_package_agent
-FOREIGN KEY (agentID) REFERENCES Agent(userID)
-ON DELETE SET NULL ON UPDATE CASCADE;
+CREATE INDEX `idx_package_filter`
+ON `Package`(destinationCountry, destinationCity, pricePerPerson, startDate, endDate, status);
 
-UPDATE Package SET agentID = 11 WHERE packageID IN (1,5);
-UPDATE Package SET agentID = 12 WHERE packageID IN (2);
-UPDATE Package SET agentID = 13 WHERE packageID IN (3);
-UPDATE Package SET agentID = 14 WHERE packageID IN (4,8);
-UPDATE Package SET agentID = 18 WHERE packageID IN (6,9);
-UPDATE Package SET agentID = 17 WHERE packageID IN (7,10);
-CREATE INDEX idx_package_filter
-ON Package(destinationCountry, destinationCity, pricePerPerson, startDate, endDate, status);
+CREATE INDEX `idx_review_package`
+ON `Review`(packageID, overallScore);
 
-CREATE INDEX idx_review_package
-ON Review(packageID, overallScore);
+CREATE INDEX `idx_booking_user_package`
+ON `Booking`(userID, packageID);
 
-CREATE INDEX idx_booking_user_package
-ON Booking(userID, packageID);
+-- Dump completed on 2026-05-19 13:47:28
