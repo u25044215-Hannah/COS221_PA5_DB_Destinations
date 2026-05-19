@@ -624,3 +624,35 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
 -- Dump completed on 2026-05-19 13:47:28
+
+
+
+ALTER TABLE `Package`
+  ADD COLUMN `agentID` INT NULL AFTER `packageID`;
+
+UPDATE `Package`
+SET `agentID` = CASE `packageID`
+    WHEN 1 THEN 11
+    WHEN 2 THEN 12
+    WHEN 3 THEN 13
+    WHEN 4 THEN 14
+    WHEN 5 THEN 15
+    WHEN 6 THEN 16
+    WHEN 7 THEN 17
+    WHEN 8 THEN 18
+    WHEN 9 THEN 19
+    WHEN 10 THEN 20
+    ELSE 11
+END;
+
+ALTER TABLE `Package`
+  MODIFY COLUMN `agentID` INT NOT NULL;
+
+ALTER TABLE `Package`
+  ADD INDEX `fk_package_agent_idx` (`agentID`);
+
+ALTER TABLE `Package`
+  ADD CONSTRAINT `fk_package_agent`
+  FOREIGN KEY (`agentID`) REFERENCES `Agent` (`userID`)
+  ON UPDATE CASCADE
+  ON DELETE RESTRICT;
