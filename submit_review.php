@@ -1,14 +1,19 @@
 <?php
-require_once "config.php";
-
+require_once __DIR__ . "/config.php";
 header("Content-Type: application/json");
 
-$userID = intval($_POST["userID"] ?? 0);
-$packageID = intval($_POST["packageID"] ?? 0);
-$comment = trim($_POST["comment"] ?? "");
-$overallScore = intval($_POST["overallScore"] ?? 0);
-$cleanlinessScore = intval($_POST["cleanlinessScore"] ?? 0);
-$serviceScore = intval($_POST["serviceScore"] ?? 0);
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($input)) {
+    $input = $_POST;
+}
+
+$userID = intval($input["userID"] ?? 0);
+$packageID = intval($input["packageID"] ?? 0);
+$comment = trim($input["comment"] ?? "");
+$overallScore = intval($input["overallScore"] ?? 0);
+$cleanlinessScore = intval($input["cleanlinessScore"] ?? 0);
+$serviceScore = intval($input["serviceScore"] ?? 0);
 
 if ($userID <= 0 || $packageID <= 0) {
     echo json_encode([
@@ -44,9 +49,7 @@ $stmt->bind_param(
     $serviceScore
 );
 
-$success = $stmt->execute();
-
-if ($success) {
+if ($stmt->execute()) {
     echo json_encode([
         "success" => true,
         "message" => "Review submitted successfully"
@@ -54,10 +57,7 @@ if ($success) {
 } else {
     echo json_encode([
         "success" => false,
-        "message" => "Review could not be submitted"
+        "message" => "Review could not be submitted: " . $stmt->error
     ]);
 }
-
-$stmt->close();
-$conn->close();
 ?>
