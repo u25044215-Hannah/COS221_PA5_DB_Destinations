@@ -1,5 +1,6 @@
 <?php
-require_once "db.php";
+require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/api.php";
 
 header("Content-Type: application/json");
 
@@ -22,6 +23,15 @@ $sql = "
 ";
 
 $stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    echo json_encode([
+        "success" => false,
+        "message" => "SQL prepare failed: " . $conn->error
+    ]);
+    exit;
+}
+
 $stmt->bind_param("i", $packageID);
 $stmt->execute();
 
@@ -46,6 +56,14 @@ $insertSql = "
 
 $stmt = $conn->prepare($insertSql);
 
+if (!$stmt) {
+    echo json_encode([
+        "success" => false,
+        "message" => "SQL prepare failed: " . $conn->error
+    ]);
+    exit;
+}
+
 $stmt->bind_param(
     "iiiid",
     $userID,
@@ -65,7 +83,7 @@ if ($success) {
 } else {
     echo json_encode([
         "success" => false,
-        "message" => "Booking failed"
+        "message" => "Booking failed: " . $stmt->error
     ]);
 }
 

@@ -1,5 +1,6 @@
 <?php
-require_once "db.php";
+require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/api.php";
 
 header("Content-Type: application/json");
 
@@ -26,6 +27,15 @@ $sql = "
 ";
 
 $stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    echo json_encode([
+        "success" => false,
+        "message" => "SQL prepare failed: " . $conn->error
+    ]);
+    exit;
+}
+
 $stmt->bind_param("i", $packageID);
 $stmt->execute();
 $package = $stmt->get_result()->fetch_assoc();
@@ -45,6 +55,15 @@ $componentSql = "
 ";
 
 $stmt = $conn->prepare($componentSql);
+
+if (!$stmt) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Component SQL prepare failed: " . $conn->error
+    ]);
+    exit;
+}
+
 $stmt->bind_param("i", $packageID);
 $stmt->execute();
 $components = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -65,6 +84,15 @@ $reviewSql = "
 ";
 
 $stmt = $conn->prepare($reviewSql);
+
+if (!$stmt) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Review SQL prepare failed: " . $conn->error
+    ]);
+    exit;
+}
+
 $stmt->bind_param("i", $packageID);
 $stmt->execute();
 $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
