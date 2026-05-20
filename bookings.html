@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings — Tripistry</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/bookings.css" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo.png" alt="Tripistry Logo" class="nav-logo-img">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="browse.html">Browse Packages</a></li>
+      <li><a href="compare.html">Compare</a></li>
+      <li><a href="bookings.html" class="active">My Bookings</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-outline btn-sm">Log In</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Sign Up</a>
+    </div>
+  </nav>
+
+  <section class="bookings-hero">
+    <div class="container">
+      <span class="eyebrow">Traveller Dashboard</span>
+      <h1>My Bookings</h1>
+      <p>View your upcoming trips, payment status and past travel experiences.</p>
+    </div>
+  </section>
+
+  <main class="container bookings-layout">
+
+    <section class="booking-summary">
+      <div class="summary-card">
+        <span class="summary-number">3</span>
+        <span class="summary-label">Total Bookings</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-number">2</span>
+        <span class="summary-label">Upcoming Trips</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-number">1</span>
+        <span class="summary-label">Awaiting Payment</span>
+      </div>
+    </section>
+
+    <section class="bookings-toolbar">
+      <h2>Your Trips</h2>
+      <select>
+        <option>All Bookings</option>
+        <option>Upcoming</option>
+        <option>Completed</option>
+        <option>Cancelled</option>
+      </select>
+    </section>
+
+    <section class="bookings-list" id="bookings-list">
+      <div class="empty-bookings-state" id="empty-bookings-state">
+    <h3>No bookings to display yet</h3>
+    <p>Your booked trips will appear here once you reserve a travel package.</p>
+    <a href="browse.html" class="btn btn-primary btn-sm">Browse Packages</a>
+  </div>
+</section>
+
+<section class="booking-summary">
+  <div class="summary-card">
+    <span class="summary-number" id="total-bookings">0</span>
+    <span class="summary-label">Total Bookings</span>
+  </div>
+  <div class="summary-card">
+    <span class="summary-number" id="upcoming-bookings">0</span>
+    <span class="summary-label">Upcoming Trips</span>
+  </div>
+  <div class="summary-card">
+    <span class="summary-number" id="pending-payments">0</span>
+    <span class="summary-label">Awaiting Payment</span>
+  </div>
+</section>
+
+    </section>
+  </main>
+
+</body>
+</html>

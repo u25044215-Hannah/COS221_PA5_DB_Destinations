@@ -1,0 +1,137 @@
+:root {
+  --green: #6b8f3e;
+  --green-dark: #3f5f2a;
+  --sky: #7dbfd3;
+  --sky-light: #d8f1f7;
+  --sky-deep: #3f91ad;
+  --dark: #123c46;
+  --dark-mid: #245665;
+  --charcoal: #2f3638;
+  --grey-text: #6f7d82;
+  --grey-mid: #b6c1c5;
+  --grey-light: #e7ecee;
+  --off-white: #f6f8f7;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 34px;
+
+  --shadow-soft: 0 12px 35px rgba(0,0,0,0.08);
+  --shadow-med: 0 20px 45px rgba(0,0,0,0.12);
+  --shadow-deep: 0 28px 70px rgba(0,0,0,0.18);
+
+  --transition: 0.25s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: var(--dark);
+  background: var(--off-white);
+}
+
+.container {
+  width: min(1180px, 92%);
+  margin: 0 auto;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+  background: rgba(18,60,70,0.88);
+  backdrop-filter: blur(14px);
+}
+
+.nav-logo-text {
+  color: white;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.nav-logo-img {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.nav-links {
+  display: flex;
+  gap: 26px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.nav-links a.active,
+.nav-links a:hover {
+  color: white;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background: var(--green);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--green-dark);
+}
+
+.btn-outline {
+  border: 1.5px solid rgba(255,255,255,0.5);
+  color: white;
+  background: transparent;
+}
+
+.btn-ghost {
+  color: white;
+  background: rgba(255,255,255,0.12);
+}
+
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}
