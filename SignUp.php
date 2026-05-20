@@ -1,17 +1,21 @@
 <?php
-// signup.php
+// SignUp.php
+// This file creates a new user account.
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 
+// Handle browser preflight request.
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
+// Connect to database.
 require_once "config.php";
 
+// Read JSON sent from auth.js.
 $input = json_decode(file_get_contents("php://input"), true);
 
 if (!$input) {
@@ -22,14 +26,16 @@ if (!$input) {
     exit();
 }
 
+// Get values from request.
 $name = trim($input["name"] ?? "");
 $surname = trim($input["surname"] ?? "");
 $email = trim($input["email"] ?? "");
 $password = trim($input["password"] ?? "");
 $userType = trim($input["userType"] ?? "");
 
+
 // ----------------------------
-// Validation
+// VALIDATION
 // ----------------------------
 
 if ($name === "") {
@@ -88,6 +94,7 @@ if ($userType === "") {
     exit();
 }
 
+// Only allow known user types.
 $allowedUserTypes = ["Traveller", "Agency"];
 
 if (!in_array($userType, $allowedUserTypes)) {
@@ -98,8 +105,9 @@ if (!in_array($userType, $allowedUserTypes)) {
     exit();
 }
 
+
 // ----------------------------
-// Check if email already exists
+// CHECK IF EMAIL ALREADY EXISTS
 // ----------------------------
 
 $checkStmt = $conn->prepare("SELECT UserID FROM Users WHERE Email = ?");
@@ -112,10 +120,13 @@ if (!$checkStmt) {
     exit();
 }
 
+// Bind email safely to prevent SQL injection.
 $checkStmt->bind_param("s", $email);
 $checkStmt->execute();
+
 $checkResult = $checkStmt->get_result();
 
+// Stop if email is already registered.
 if ($checkResult->num_rows > 0) {
     echo json_encode([
         "success" => false,
@@ -126,11 +137,13 @@ if ($checkResult->num_rows > 0) {
 
 $checkStmt->close();
 
+
 // ----------------------------
-// Insert new user
+// INSERT NEW USER
 // ----------------------------
-// NOTE: Password is stored raw/unhashed because you requested this.
-// For a real system, use password_hash().
+
+// NOTE: This version stores the password as plain text because that is what this file currently does.
+// For safer code, use password_hash($password, PASSWORD_DEFAULT).
 
 $insertStmt = $conn->prepare("
     INSERT INTO Users (Name, Surname, Email, Password, UserType, CreatedAt)
@@ -145,8 +158,10 @@ if (!$insertStmt) {
     exit();
 }
 
+// Bind user details safely.
 $insertStmt->bind_param("sssss", $name, $surname, $email, $password, $userType);
 
+// Run insert query.
 if ($insertStmt->execute()) {
     echo json_encode([
         "success" => true,
