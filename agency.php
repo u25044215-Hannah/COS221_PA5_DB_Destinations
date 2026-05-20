@@ -5,9 +5,9 @@
 
 session_start();
 //gets the connection to the database
-require_once __DIR__ . "/config/database.php";
-if (file_exists(__DIR__ . "/includes/auth_check.php")) {
-    require_once __DIR__ . "/includes/auth_check.php";
+require_once __DIR__ . "config.php";
+if (file_exists(__DIR__ . "api.php")) {
+    require_once __DIR__ . "api.php";
 }
 
 //gives responses as JSON
