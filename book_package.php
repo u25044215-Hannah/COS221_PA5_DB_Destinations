@@ -1,12 +1,16 @@
 <?php
 require_once __DIR__ . "/config.php";
-require_once __DIR__ . "/api.php";
-
 header("Content-Type: application/json");
 
-$userID = intval($_POST["userID"] ?? 0);
-$packageID = intval($_POST["packageID"] ?? 0);
-$numGuests = intval($_POST["numGuests"] ?? 1);
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($input)) {
+    $input = $_POST;
+}
+
+$userID = intval($input["userID"] ?? 0);
+$packageID = intval($input["packageID"] ?? 0);
+$numGuests = intval($input["numGuests"] ?? 1);
 
 if ($userID <= 0 || $packageID <= 0 || $numGuests <= 0) {
     echo json_encode([
@@ -16,21 +20,11 @@ if ($userID <= 0 || $packageID <= 0 || $numGuests <= 0) {
     exit;
 }
 
-$sql = "
-    SELECT pricePerPerson, agentID
+$stmt = $conn->prepare("
+    SELECT agentID, pricePerPerson, maxCapacity
     FROM Package
-    WHERE packageID = ?
-";
-
-$stmt = $conn->prepare($sql);
-
-if (!$stmt) {
-    echo json_encode([
-        "success" => false,
-        "message" => "SQL prepare failed: " . $conn->error
-    ]);
-    exit;
-}
+    WHERE packageID = ? AND status = 'Active'
+");
 
 $stmt->bind_param("i", $packageID);
 $stmt->execute();
@@ -45,24 +39,14 @@ if (!$package) {
     exit;
 }
 
-$totalPrice = $package["pricePerPerson"] * $numGuests;
-$agentID = $package["agentID"];
+$agentID = intval($package["agentID"]);
+$totalPrice = floatval($package["pricePerPerson"]) * $numGuests;
 
-$insertSql = "
-    INSERT INTO Booking
+$stmt = $conn->prepare("
+    INSERT INTO Booking 
     (userID, agentID, packageID, numGuests, totalPrice, status)
     VALUES (?, ?, ?, ?, ?, 'Confirmed')
-";
-
-$stmt = $conn->prepare($insertSql);
-
-if (!$stmt) {
-    echo json_encode([
-        "success" => false,
-        "message" => "SQL prepare failed: " . $conn->error
-    ]);
-    exit;
-}
+");
 
 $stmt->bind_param(
     "iiiid",
@@ -73,12 +57,11 @@ $stmt->bind_param(
     $totalPrice
 );
 
-$success = $stmt->execute();
-
-if ($success) {
+if ($stmt->execute()) {
     echo json_encode([
         "success" => true,
-        "message" => "Booking created successfully"
+        "message" => "Package booked successfully",
+        "bookingID" => $stmt->insert_id
     ]);
 } else {
     echo json_encode([
@@ -86,7 +69,4 @@ if ($success) {
         "message" => "Booking failed: " . $stmt->error
     ]);
 }
-
-$stmt->close();
-$conn->close();
 ?>
