@@ -64,3 +64,29 @@ function normalisePackage(p) {
     agency: p.agencyName || "Tripistry Agency"
   };
 }
+
+function getCompareList() {
+  try {
+    return JSON.parse(localStorage.getItem("tripistryCompare") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function setCompareList(list) {
+  localStorage.setItem(
+    "tripistryCompare",
+    JSON.stringify([...new Set(list.map(Number))].slice(0, 4))
+  );
+}
+
+function addToCompare(id) {
+  const list = getCompareList();
+  const packageID = Number(id);
+
+  if (!list.includes(packageID)) {
+    list.push(packageID);
+  }
+
+  setCompareList(list);
+}
