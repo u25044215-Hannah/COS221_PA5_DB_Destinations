@@ -1,0 +1,142 @@
+.review-hero {
+  padding: 150px 0 70px;
+  background:
+    linear-gradient(160deg, rgba(18,60,70,0.94), rgba(18,60,70,0.68)),
+    url("../images/PrettyBackground.jpg") center/cover no-repeat;
+  color: white;
+}
+
+.review-hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4.4rem);
+  margin-bottom: 12px;
+}
+
+.review-hero p {
+  color: rgba(255,255,255,0.75);
+  font-size: 1rem;
+}
+
+.review-layout {
+  padding: 48px 0 80px;
+}
+
+.review-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-med);
+  padding: 42px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.review-intro {
+  margin-bottom: 30px;
+}
+
+.review-intro h2 {
+  font-size: 2rem;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.review-intro p {
+  color: var(--grey-text);
+  line-height: 1.7;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--grey-light);
+  font-size: 0.95rem;
+  color: var(--dark);
+  background: white;
+  outline: none;
+  transition: var(--transition);
+  font-family: Arial, sans-serif;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--sky-deep);
+  box-shadow: 0 0 0 4px rgba(125,191,211,0.16);
+}
+
+.form-group input[readonly] {
+  background: var(--off-white);
+  color: var(--grey-text);
+}
+
+.form-group small {
+  display: block;
+  margin-top: 6px;
+  color: var(--grey-text);
+  font-size: 0.78rem;
+}
+
+.review-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+}
+
+.btn-soft {
+  background: rgba(125,191,211,0.18);
+  color: var(--dark);
+}
+
+.btn-soft:hover {
+  background: var(--sky);
+  color: white;
+}
+
+@media (max-width: 760px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .review-card {
+    padding: 28px;
+  }
+
+  .review-actions {
+    justify-content: stretch;
+  }
+
+  .review-actions .btn {
+    width: 100%;
+  }
+}

@@ -312,6 +312,41 @@
   color: rgba(255,255,255,0.65); font-size: 0.85rem; margin-bottom: 14px;
 }
 
+.review-cta-section {
+  background: var(--off-white);
+  padding: 60px 0 90px;
+}
+
+.review-cta-card {
+  background:
+    linear-gradient(135deg, rgba(18,60,70,0.94), rgba(36,86,101,0.9));
+  color: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-med);
+  padding: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.review-cta-card h2 {
+  font-size: 2rem;
+  margin: 8px 0;
+}
+
+.review-cta-card p {
+  color: rgba(255,255,255,0.72);
+  max-width: 620px;
+}
+
+@media (max-width: 760px) {
+  .review-cta-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 .experience-grid {
   display: grid;
   grid-template-columns: 1.8fr 1fr 1fr 1fr;
