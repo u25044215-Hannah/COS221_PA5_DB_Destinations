@@ -498,7 +498,7 @@ INSERT INTO `Accommodation` VALUES
 (43,'Resort',5,'Ubud Garden Road','Spa, Pool, Yoga, WiFi'),
 (46,'Hotel',4,'Sultanahmet District','WiFi, Breakfast, Rooftop View'),
 (49,'Hotel',4,'Harbour Street, Sydney','WiFi, Harbour View, Breakfast'),
-(52,'Resort',5,'Lagoon Island, Male','Beach Access, Spa, Snorkelling, WiFi')
+(52,'Resort',5,'Lagoon Island, Male','Beach Access, Spa, Snorkelling, WiFi'),
 (55,'Hotel',4,'19 Central Avenue, Vienna','WiFi, Breakfast, Pool, Parking'),
 (58,'Hotel',5,'20 Central Avenue, Lisbon','WiFi, Breakfast, Pool, Parking'),
 (61,'Hotel',3,'21 Central Avenue, Prague','WiFi, Breakfast, Pool, Parking'),
