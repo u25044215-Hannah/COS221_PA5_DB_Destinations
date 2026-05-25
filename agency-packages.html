@@ -27,7 +27,6 @@
     </div>
   </nav>
 
-  <!-- HERO -->
   <section class="agency-hero">
     <div class="container">
       <span class="eyebrow">Package Management</span>
@@ -38,7 +37,6 @@
 
   <main class="container agency-main">
 
-    <!-- TOOLBAR -->
     <div class="pkg-toolbar">
       <div class="pkg-toolbar-left">
         <div class="search-input-wrap" style="width:280px;">
@@ -49,7 +47,7 @@
           <option value="">All Status</option>
           <option value="active">Active</option>
           <option value="draft">Draft</option>
-          <option value="archived">Archived</option>
+          <option value="inactive">Inactive</option>
         </select>
       </div>
       <button class="btn btn-primary" id="add-pkg-btn">
@@ -58,14 +56,14 @@
       </button>
     </div>
 
-    <!-- PACKAGES GRID -->
+    <!-- Cards populated by agency.js → loadAgencyPackages() → renderPackageGrid() -->
     <div class="packages-manage-grid" id="packages-manage-grid">
-      <!-- Populated by JS -->
+      <p style="color:var(--grey-text);padding:2rem 0;">Loading packages…</p>
     </div>
 
   </main>
 
-  <!-- ═══════════════ ADD / EDIT MODAL ═══════════════ -->
+  <!-- ═══ ADD / EDIT MODAL ═══════════════════════════════════════════ -->
   <div class="modal-overlay" id="pkg-modal" style="display:none;">
     <div class="modal">
       <div class="modal-header">
@@ -73,50 +71,58 @@
         <button class="modal-close" id="close-modal">✕</button>
       </div>
 
+      <!--
+        Fields map directly to Package table columns:
+          title, description, pricePerPerson, currency, maxCapacity,
+          startDate, endDate, destinationCity (split from destination input),
+          destinationCountry (split from destination input), status
+      -->
       <form class="modal-form" id="pkg-form" novalidate>
         <input type="hidden" id="edit-id" />
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label>Package Name <span class="req">*</span></label>
+            <label>Package Title <span class="req">*</span></label>
             <input type="text" id="pkg-name" placeholder="e.g. Bali Bliss 10 Days" required />
             <span class="field-error" id="err-name"></span>
           </div>
           <div class="form-group">
             <label>Destination <span class="req">*</span></label>
-            <input type="text" id="pkg-destination" placeholder="e.g. Bali, Indonesia" required />
+            <input type="text" id="pkg-destination" placeholder="City, Country  e.g. Paris, France" required />
             <span class="field-error" id="err-destination"></span>
           </div>
         </div>
 
         <div class="form-grid-3">
           <div class="form-group">
-            <label>Price per Person (ZAR) <span class="req">*</span></label>
-            <input type="number" id="pkg-price" placeholder="28500" min="0" required />
+            <label>Price per Person <span class="req">*</span></label>
+            <input type="number" id="pkg-price" placeholder="28500" min="0" step="0.01" required />
             <span class="field-error" id="err-price"></span>
           </div>
           <div class="form-group">
-            <label>Duration (Days) <span class="req">*</span></label>
-            <input type="number" id="pkg-duration" placeholder="10" min="1" required />
-            <span class="field-error" id="err-duration"></span>
+            <label>Currency</label>
+            <select id="pkg-currency">
+              <option value="ZAR">ZAR (R)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+            </select>
           </div>
           <div class="form-group">
-            <label>Max Travellers</label>
+            <label>Max Capacity</label>
             <input type="number" id="pkg-max" placeholder="20" min="1" />
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Category</label>
-          <select id="pkg-category">
-            <option value="">Select category</option>
-            <option value="adventure">Adventure</option>
-            <option value="beach">Beach & Relaxation</option>
-            <option value="cultural">Cultural</option>
-            <option value="luxury">Luxury</option>
-            <option value="family">Family</option>
-            <option value="honeymoon">Honeymoon</option>
-          </select>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="pkg-start" />
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" id="pkg-end" />
+          </div>
         </div>
 
         <div class="form-group">
@@ -126,23 +132,12 @@
         </div>
 
         <div class="form-group">
-          <label>Itinerary (one item per line)</label>
-          <textarea id="pkg-itinerary" rows="5" placeholder="Day 1: Arrival in Bali, hotel check-in&#10;Day 2: Ubud rice terraces tour&#10;Day 3: Tanah Lot temple visit…"></textarea>
-        </div>
-
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label>Inclusions (comma-separated)</label>
-            <input type="text" id="pkg-inclusions" placeholder="Flights, Hotel, Breakfast, Tours" />
-          </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select id="pkg-status">
-              <option value="active">Active</option>
-              <option value="draft">Draft</option>
-              <option value="archived">Archived</option>
-            </select>
-          </div>
+          <label>Status</label>
+          <select id="pkg-status">
+            <option value="Active">Active</option>
+            <option value="Draft">Draft</option>
+            <option value="Inactive">Inactive</option>
+          </select>
         </div>
 
         <div class="modal-footer">
@@ -153,7 +148,7 @@
     </div>
   </div>
 
-  <!-- DELETE CONFIRM MODAL -->
+  <!-- ═══ DELETE CONFIRM MODAL ═══════════════════════════════════════ -->
   <div class="modal-overlay" id="delete-modal" style="display:none;">
     <div class="modal modal--sm">
       <div class="modal-header">
@@ -161,7 +156,7 @@
         <button class="modal-close" id="close-delete-modal">✕</button>
       </div>
       <p style="padding:0 24px 8px;color:var(--grey-text);">
-        Are you sure you want to delete <strong id="delete-pkg-name"></strong>? This action cannot be undone.
+        Are you sure you want to delete <strong id="delete-pkg-name"></strong>? This cannot be undone.
       </p>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="cancel-delete">Cancel</button>
@@ -170,176 +165,14 @@
     </div>
   </div>
 
+  <!-- Auto-open add modal if ?action=new in URL -->
   <script>
-    // ── Data Store ─────────────────────────────────────────────
-    let packages = [
-      { id: 1, name: 'Bali Bliss 10D',    destination: 'Bali, Indonesia',      price: 28500, duration: 10, max: 20, category: 'beach',     status: 'active',   description: 'A magical journey through the island of gods.', itinerary: 'Day 1: Arrival\nDay 2: Ubud\nDay 3: Tanah Lot', inclusions: 'Flights, Hotel, Breakfast', bookings: 18 },
-      { id: 2, name: 'Swiss Alps 7D',      destination: 'Interlaken, Switzerland', price: 45200, duration: 7,  max: 15, category: 'adventure', status: 'active',   description: 'Epic alpine scenery and adrenaline adventures.', itinerary: 'Day 1: Zurich arrival\nDay 2: Jungfraujoch', inclusions: 'Flights, Hotel, Cable Car Passes', bookings: 11 },
-      { id: 3, name: 'London Explorer',    destination: 'London, UK',            price: 32000, duration: 8,  max: 25, category: 'cultural',  status: 'active',   description: 'Iconic landmarks, world-class museums and theatre.', itinerary: 'Day 1: Arrival, Tower of London\nDay 2: British Museum', inclusions: 'Flights, Hotel, Museum Pass', bookings: 9 },
-      { id: 4, name: 'Tokyo 8D',           destination: 'Tokyo, Japan',          price: 51000, duration: 8,  max: 12, category: 'cultural',  status: 'active',   description: 'Neon nights, ancient temples and sushi culture.', itinerary: 'Day 1: Shinjuku\nDay 2: Asakusa\nDay 3: Shibuya', inclusions: 'Flights, Hotel, Rail Pass', bookings: 7 },
-      { id: 5, name: 'Zanzibar Beach 5D',  destination: 'Zanzibar, Tanzania',    price: 19800, duration: 5,  max: 30, category: 'beach',     status: 'active',   description: 'Crystal waters and white sand beaches.', itinerary: 'Day 1: Stone Town\nDay 2: Snorkelling', inclusions: 'Flights, Hotel, Breakfast, Snorkel Tour', bookings: 3 },
-      { id: 6, name: 'Paris Getaway 4D',   destination: 'Paris, France',         price: 38000, duration: 4,  max: 20, category: 'luxury',    status: 'draft',    description: 'Romance, art, cuisine — the City of Light awaits.', itinerary: 'Day 1: Eiffel Tower\nDay 2: Louvre', inclusions: 'Flights, 5-Star Hotel, Seine Cruise', bookings: 0 },
-    ];
-    let nextId = 7;
-    let deletingId = null;
-
-    // ── Render Cards ───────────────────────────────────────────
-    const catEmoji = { adventure:'🏔️', beach:'🏖️', cultural:'🏛️', luxury:'💎', family:'👨‍👩‍👧', honeymoon:'💑' };
-
-    function renderPackages() {
-      const search = document.getElementById('pkg-search').value.toLowerCase();
-      const statusF = document.getElementById('pkg-status-filter').value;
-      const filtered = packages.filter(p =>
-        (!search || p.name.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search)) &&
-        (!statusF || p.status === statusF)
-      );
-      const grid = document.getElementById('packages-manage-grid');
-      if (!filtered.length) {
-        grid.innerHTML = '<div class="empty-state"><p>No packages found.</p><button class="btn btn-primary" onclick="openAddModal()">+ Add Package</button></div>';
-        return;
-      }
-      grid.innerHTML = filtered.map(p => `
-        <div class="pkg-manage-card" data-id="${p.id}">
-          <div class="pkg-manage-top">
-            <div class="pkg-manage-cat">${catEmoji[p.category] || '✈️'} ${p.category || 'General'}</div>
-            <span class="status-badge status-badge--${p.status}">${p.status}</span>
-          </div>
-          <h3 class="pkg-manage-name">${p.name}</h3>
-          <p class="pkg-manage-dest">📍 ${p.destination}</p>
-          <p class="pkg-manage-desc">${p.description}</p>
-          <div class="pkg-manage-meta">
-            <div class="pkg-meta-item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              ${p.duration} days
-            </div>
-            <div class="pkg-meta-item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-              Max ${p.max || '–'}
-            </div>
-            <div class="pkg-meta-item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
-              ${p.bookings} bookings
-            </div>
-          </div>
-          <div class="pkg-manage-price">R ${p.price.toLocaleString()}<span> / person</span></div>
-          <div class="pkg-manage-actions">
-            <button class="btn btn-sm" style="background:var(--sky-light);color:var(--dark);" onclick="openEditModal(${p.id})">
-              ✏️ Edit
-            </button>
-            <button class="btn btn-sm" style="background:#fde8e8;color:#c0392b;" onclick="openDeleteModal(${p.id})">
-              🗑️ Delete
-            </button>
-          </div>
-        </div>`).join('');
+    if (new URLSearchParams(location.search).get("action") === "new") {
+      document.addEventListener("DOMContentLoaded", () => {
+        // openAddModal is defined in agency.js; wait for it to load
+        setTimeout(() => { if (typeof openAddModal === "function") openAddModal(); }, 200);
+      });
     }
-
-    // ── Modal Logic ────────────────────────────────────────────
-    function openAddModal() {
-      document.getElementById('modal-title').textContent = 'Add New Package';
-      document.getElementById('edit-id').value = '';
-      document.getElementById('pkg-form').reset();
-      clearErrors();
-      document.getElementById('pkg-modal').style.display = 'flex';
-    }
-
-    function openEditModal(id) {
-      const p = packages.find(x => x.id === id);
-      if (!p) return;
-      document.getElementById('modal-title').textContent = 'Edit Package';
-      document.getElementById('edit-id').value = id;
-      document.getElementById('pkg-name').value = p.name;
-      document.getElementById('pkg-destination').value = p.destination;
-      document.getElementById('pkg-price').value = p.price;
-      document.getElementById('pkg-duration').value = p.duration;
-      document.getElementById('pkg-max').value = p.max || '';
-      document.getElementById('pkg-category').value = p.category || '';
-      document.getElementById('pkg-description').value = p.description;
-      document.getElementById('pkg-itinerary').value = p.itinerary || '';
-      document.getElementById('pkg-inclusions').value = p.inclusions || '';
-      document.getElementById('pkg-status').value = p.status;
-      clearErrors();
-      document.getElementById('pkg-modal').style.display = 'flex';
-    }
-
-    function openDeleteModal(id) {
-      deletingId = id;
-      const p = packages.find(x => x.id === id);
-      document.getElementById('delete-pkg-name').textContent = p ? p.name : '';
-      document.getElementById('delete-modal').style.display = 'flex';
-    }
-
-    function closeModals() {
-      document.getElementById('pkg-modal').style.display = 'none';
-      document.getElementById('delete-modal').style.display = 'none';
-    }
-
-    function clearErrors() {
-      ['name','destination','price','duration','description'].forEach(f =>
-        document.getElementById('err-' + f).textContent = '');
-    }
-
-    // ── Form Validation & Save ─────────────────────────────────
-    document.getElementById('pkg-form').addEventListener('submit', e => {
-      e.preventDefault();
-      clearErrors();
-      let valid = true;
-
-      const name = document.getElementById('pkg-name').value.trim();
-      const dest = document.getElementById('pkg-destination').value.trim();
-      const price = parseFloat(document.getElementById('pkg-price').value);
-      const dur   = parseInt(document.getElementById('pkg-duration').value);
-      const desc  = document.getElementById('pkg-description').value.trim();
-
-      if (!name)        { document.getElementById('err-name').textContent = 'Package name is required.'; valid = false; }
-      if (!dest)        { document.getElementById('err-destination').textContent = 'Destination is required.'; valid = false; }
-      if (!price || price <= 0) { document.getElementById('err-price').textContent = 'Enter a valid price.'; valid = false; }
-      if (!dur || dur < 1)      { document.getElementById('err-duration').textContent = 'Duration must be at least 1 day.'; valid = false; }
-      if (!desc)        { document.getElementById('err-description').textContent = 'Description is required.'; valid = false; }
-      if (!valid) return;
-
-      const id = document.getElementById('edit-id').value;
-      const data = {
-        name, destination: dest, price, duration: dur,
-        max: parseInt(document.getElementById('pkg-max').value) || 20,
-        category: document.getElementById('pkg-category').value,
-        description: desc,
-        itinerary: document.getElementById('pkg-itinerary').value,
-        inclusions: document.getElementById('pkg-inclusions').value,
-        status: document.getElementById('pkg-status').value,
-      };
-
-      if (id) {
-        const idx = packages.findIndex(x => x.id === parseInt(id));
-        packages[idx] = { ...packages[idx], ...data };
-      } else {
-        packages.push({ id: nextId++, bookings: 0, ...data });
-      }
-
-      closeModals();
-      renderPackages();
-    });
-
-    document.getElementById('confirm-delete').addEventListener('click', () => {
-      packages = packages.filter(p => p.id !== deletingId);
-      closeModals();
-      renderPackages();
-    });
-
-    // ── Event Bindings ─────────────────────────────────────────
-    document.getElementById('add-pkg-btn').addEventListener('click', openAddModal);
-    document.getElementById('close-modal').addEventListener('click', closeModals);
-    document.getElementById('cancel-modal').addEventListener('click', closeModals);
-    document.getElementById('close-delete-modal').addEventListener('click', closeModals);
-    document.getElementById('cancel-delete').addEventListener('click', closeModals);
-    document.getElementById('pkg-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModals(); });
-    document.getElementById('delete-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModals(); });
-    document.getElementById('pkg-search').addEventListener('input', renderPackages);
-    document.getElementById('pkg-status-filter').addEventListener('change', renderPackages);
-
-    // Auto-open modal if ?action=new in URL
-    if (new URLSearchParams(location.search).get('action') === 'new') openAddModal();
-
-    renderPackages();
   </script>
 
 <script src="js/agency.js"></script>
