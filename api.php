@@ -1,259 +1,305 @@
 <?php
 // api.php
-// This file contains shared API helper functions.
-// It can also be opened directly to handle simple user API requests.
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Load the database connection from config.php.
-// This gives us access to the $conn variable.
 require_once __DIR__ . "/config.php";
 
+header("Content-Type: application/json; charset=utf-8");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
-// ----------------------------------------------------
-// SESSION / AUTH HELPER FUNCTIONS
-// ----------------------------------------------------
-
-// Gets the currently logged-in user's ID from the PHP session.
-if (!function_exists("getCurrentUserID")) {
-    function getCurrentUserID() {
-        if (isset($_SESSION["userID"])) {
-            return intval($_SESSION["userID"]);
-        }
-
-        if (isset($_SESSION["user_id"])) {
-            return intval($_SESSION["user_id"]);
-        }
-
-        if (isset($_SESSION["UserID"])) {
-            return intval($_SESSION["UserID"]);
-        }
-
-        return 0;
-    }
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    exit();
 }
 
+function jsonResponse($success, $message = "", $data = null, $statusCode = 200) {
+    http_response_code($statusCode);
 
-// Gets the current agent's ID.
-// This is used for agency-only backend actions.
-if (!function_exists("getCurrentAgentID")) {
-    function getCurrentAgentID() {
-        if (isset($_SESSION["agentID"])) {
-            return intval($_SESSION["agentID"]);
-        }
+    echo json_encode([
+        "success" => $success,
+        "message" => $message,
+        "data" => $data
+    ]);
 
-        if (isset($_SESSION["agent_id"])) {
-            return intval($_SESSION["agent_id"]);
-        }
-
-        if (isset($_SESSION["userID"])) {
-            return intval($_SESSION["userID"]);
-        }
-
-        if (isset($_SESSION["user_id"])) {
-            return intval($_SESSION["user_id"]);
-        }
-
-        return 0;
-    }
+    exit();
 }
 
+function getInput() {
+    $raw = file_get_contents("php://input");
+    $json = json_decode($raw, true);
 
-// Sends a JSON response and immediately stops the script.
-if (!function_exists("jsonExit")) {
-    function jsonExit($success, $message = "", $data = null, $statusCode = 200) {
-        http_response_code($statusCode);
-        header("Content-Type: application/json; charset=utf-8");
-
-        echo json_encode([
-            "success" => $success,
-            "message" => $message,
-            "data" => $data
-        ]);
-
-        exit();
-    }
+    return is_array($json) ? $json : [];
 }
 
+function tableExists($conn, $tableName) {
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) AS total
+        FROM information_schema.tables
+        WHERE table_schema = DATABASE()
+        AND table_name = ?
+    ");
 
-// Makes sure the logged-in user is an agency/agent.
-if (!function_exists("requireAgency")) {
-    function requireAgency() {
-        $agentID = getCurrentAgentID();
+    $stmt->bind_param("s", $tableName);
+    $stmt->execute();
 
-        if ($agentID <= 0) {
-            jsonExit(false, "Not logged in as an agent.", null, 401);
-        }
+    $result = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 
-        $type = strtolower((string)($_SESSION["userType"] ?? $_SESSION["user_type"] ?? $_SESSION["role"] ?? ""));
-
-        if ($type !== "" && !in_array($type, ["agent", "agency", "travel agency"])) {
-            jsonExit(false, "Access denied. Agent account required.", null, 403);
-        }
-
-        return $agentID;
-    }
+    return intval($result["total"]) > 0;
 }
 
+/*
+    This endpoint is used by browse_backend.js.
 
-// ----------------------------------------------------
-// DIRECT API.PHP REQUEST HANDLING
-// ----------------------------------------------------
+    It gets all packages and joins the related agency, destination,
+    accommodation and group-trip data where possible.
+*/
+function getPackages($conn) {
+    $sql = "
+        SELECT
+            p.PackageID AS packageID,
+            p.PackageName AS packageName,
+            p.PackageName AS title,
+            p.Description AS description,
+            p.Price AS price,
+            p.Price AS pricePerPerson,
+            p.StartDate AS startDate,
+            p.EndDate AS endDate,
 
-// Reads JSON data sent from JavaScript fetch().
-if (!function_exists("api_get_input")) {
-    function api_get_input() {
-        $raw = file_get_contents("php://input");
-        $json = json_decode($raw, true);
+            DATEDIFF(p.EndDate, p.StartDate) AS durationDays,
 
-        return is_array($json) ? $json : [];
+            d.DestinationID AS destinationID,
+            d.City AS destinationCity,
+            d.Country AS destinationCountry,
+
+            a.AgentID AS agentID,
+            a.CompanyName AS agencyName,
+            a.CompanyName AS companyName,
+
+            ac.AccommodationID AS accommodationID,
+            ac.Name AS accommodationName,
+            ac.PropertyType AS propertyType,
+            ac.PropertyType AS accommodationType,
+
+            gt.GroupTripID AS groupTripID,
+            gt.GroupName AS groupName,
+            gt.MaxGroupSize AS maxGroupSize,
+
+            COALESCE(AVG(r.Rating), 0) AS averageRating
+
+        FROM Package p
+
+        LEFT JOIN Destination d
+            ON p.DestinationID = d.DestinationID
+
+        LEFT JOIN Agent a
+            ON p.AgentID = a.AgentID
+
+        LEFT JOIN Accommodation ac
+            ON p.AccommodationID = ac.AccommodationID
+
+        LEFT JOIN GroupTrip gt
+            ON p.PackageID = gt.PackageID
+
+        LEFT JOIN Review r
+            ON p.PackageID = r.PackageID
+
+        GROUP BY
+            p.PackageID,
+            p.PackageName,
+            p.Description,
+            p.Price,
+            p.StartDate,
+            p.EndDate,
+            d.DestinationID,
+            d.City,
+            d.Country,
+            a.AgentID,
+            a.CompanyName,
+            ac.AccommodationID,
+            ac.Name,
+            ac.PropertyType,
+            gt.GroupTripID,
+            gt.GroupName,
+            gt.MaxGroupSize
+
+        ORDER BY p.PackageID DESC
+    ";
+
+    $result = $conn->query($sql);
+
+    if (!$result) {
+        jsonResponse(false, "Could not load packages: " . $conn->error, []);
     }
+
+    $packages = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $packages[] = $row;
+    }
+
+    jsonResponse(true, "Packages loaded successfully.", $packages);
 }
 
+/*
+    This endpoint fills the dropdowns on browse.html.
 
-// Main router for api.php.
-if (!function_exists("api_handle_request")) {
-    function api_handle_request($conn) {
-        header("Content-Type: application/json; charset=utf-8");
-        header("Access-Control-Allow-Origin: *");
-        header("Access-Control-Allow-Headers: Content-Type");
-        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    It returns:
+    - destinations
+    - agencies
+    - accommodation types
+*/
+function getBrowseFilters($conn) {
+    $data = [
+        "destinations" => [],
+        "agencies" => [],
+        "accommodationTypes" => []
+    ];
 
-        if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-            exit();
-        }
+    $destinationSQL = "
+        SELECT DISTINCT
+            DestinationID AS destinationID,
+            City AS destinationCity,
+            Country AS destinationCountry
+        FROM Destination
+        ORDER BY Country ASC, City ASC
+    ";
 
-        $input = api_get_input();
+    $agencySQL = "
+        SELECT DISTINCT
+            AgentID AS agentID,
+            CompanyName AS agencyName,
+            CompanyName AS companyName
+        FROM Agent
+        ORDER BY CompanyName ASC
+    ";
 
-        if ($_SERVER["REQUEST_METHOD"] === "GET") {
-            $type = $_GET["type"] ?? "";
-        } else {
-            $type = $input["type"] ?? "";
-        }
+    $accommodationSQL = "
+        SELECT DISTINCT
+            PropertyType AS propertyType,
+            PropertyType AS accommodationType
+        FROM Accommodation
+        WHERE PropertyType IS NOT NULL
+        AND PropertyType <> ''
+        ORDER BY PropertyType ASC
+    ";
 
-        switch ($type) {
-            case "getUsers":
-                getUsers($conn);
-                break;
-
-            case "getUserByID":
-                $userID = $_GET["userID"] ?? ($input["userID"] ?? null);
-                getUserByID($conn, $userID);
-                break;
-
-            default:
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid or missing API request type"
-                ]);
-                break;
+    $destinationResult = $conn->query($destinationSQL);
+    if ($destinationResult) {
+        while ($row = $destinationResult->fetch_assoc()) {
+            $data["destinations"][] = $row;
         }
     }
-}
 
-
-// ----------------------------------------------------
-// GET ALL USERS
-// ----------------------------------------------------
-
-if (!function_exists("getUsers")) {
-    function getUsers($conn) {
-        $sql = "
-            SELECT UserID, Name, Surname, Email, UserType, CreatedAt
-            FROM Users
-            ORDER BY UserID ASC
-        ";
-
-        $result = $conn->query($sql);
-
-        if (!$result) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Query failed: " . $conn->error
-            ]);
-            return;
+    $agencyResult = $conn->query($agencySQL);
+    if ($agencyResult) {
+        while ($row = $agencyResult->fetch_assoc()) {
+            $data["agencies"][] = $row;
         }
-
-        $users = [];
-
-        while ($row = $result->fetch_assoc()) {
-            $users[] = $row;
-        }
-
-        echo json_encode([
-            "success" => true,
-            "data" => $users
-        ]);
     }
+
+    $accommodationResult = $conn->query($accommodationSQL);
+    if ($accommodationResult) {
+        while ($row = $accommodationResult->fetch_assoc()) {
+            $data["accommodationTypes"][] = $row;
+        }
+    }
+
+    jsonResponse(true, "Browse filters loaded successfully.", $data);
 }
 
+function getUsers($conn) {
+    $sql = "
+        SELECT UserID, Name, Surname, Email, UserType, CreatedAt
+        FROM Users
+        ORDER BY UserID ASC
+    ";
 
-// ----------------------------------------------------
-// GET ONE USER BY ID
-// ----------------------------------------------------
+    $result = $conn->query($sql);
 
-if (!function_exists("getUserByID")) {
-    function getUserByID($conn, $userID) {
-        if ($userID === null || !is_numeric($userID)) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Valid userID is required"
-            ]);
-            return;
-        }
+    if (!$result) {
+        jsonResponse(false, "Query failed: " . $conn->error, []);
+    }
 
-        $stmt = $conn->prepare("
-            SELECT UserID, Name, Surname, Email, UserType, CreatedAt
-            FROM Users
-            WHERE UserID = ?
-        ");
+    $users = [];
 
-        if (!$stmt) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Prepare failed: " . $conn->error
-            ]);
-            return;
-        }
+    while ($row = $result->fetch_assoc()) {
+        $users[] = $row;
+    }
 
-        $userID = intval($userID);
+    jsonResponse(true, "Users loaded successfully.", $users);
+}
 
-        $stmt->bind_param("i", $userID);
-        $stmt->execute();
+function getUserByID($conn, $userID) {
+    if ($userID === null || !is_numeric($userID)) {
+        jsonResponse(false, "Valid userID is required.", null, 400);
+    }
 
-        $result = $stmt->get_result();
+    $stmt = $conn->prepare("
+        SELECT UserID, Name, Surname, Email, UserType, CreatedAt
+        FROM Users
+        WHERE UserID = ?
+    ");
 
-        if ($result->num_rows === 0) {
-            echo json_encode([
-                "success" => false,
-                "message" => "User not found"
-            ]);
+    if (!$stmt) {
+        jsonResponse(false, "Prepare failed: " . $conn->error, null, 500);
+    }
 
-            $stmt->close();
-            return;
-        }
+    $userID = intval($userID);
 
-        $user = $result->fetch_assoc();
+    $stmt->bind_param("i", $userID);
+    $stmt->execute();
 
-        echo json_encode([
-            "success" => true,
-            "data" => $user
-        ]);
+    $result = $stmt->get_result();
 
+    if ($result->num_rows === 0) {
         $stmt->close();
+        jsonResponse(false, "User not found.", null, 404);
     }
+
+    $user = $result->fetch_assoc();
+    $stmt->close();
+
+    jsonResponse(true, "User loaded successfully.", $user);
 }
 
+$input = getInput();
 
-// ----------------------------------------------------
-// Only run this router when api.php is opened directly.
-// If another PHP file includes api.php, this part will not run.
-// ----------------------------------------------------
+$action = $_GET["action"] ?? $_GET["type"] ?? $input["action"] ?? $input["type"] ?? "";
 
-if (realpath($_SERVER["SCRIPT_FILENAME"]) === realpath(__FILE__)) {
-    api_handle_request($conn);
-    $conn->close();
+switch ($action) {
+    case "getPackages":
+        getPackages($conn);
+        break;
+
+    case "getBrowseFilters":
+        getBrowseFilters($conn);
+        break;
+
+    case "getUsers":
+        getUsers($conn);
+        break;
+
+    case "getUserByID":
+        $userID = $_GET["userID"] ?? $input["userID"] ?? null;
+        getUserByID($conn, $userID);
+        break;
+
+    default:
+        jsonResponse(false, "Invalid or missing API action.", [
+            "receivedAction" => $action,
+            "validActions" => [
+                "getPackages",
+                "getBrowseFilters",
+                "getUsers",
+                "getUserByID"
+            ]
+        ], 400);
 }
+
+$conn->close();
 ?>
