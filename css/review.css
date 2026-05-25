@@ -140,3 +140,53 @@
     width: 100%;
   }
 }
+
+/* =========================================================
+   UI POLISH UPDATE — keeps existing HTML/JS functionality
+   ========================================================= */
+.review-hero {
+  background:
+    linear-gradient(140deg, rgba(15,52,64,0.95), rgba(15,52,64,0.68)),
+    url("../images/PrettyBackground.jpg") center/cover no-repeat;
+}
+
+.review-card {
+  background: rgba(255,255,255,0.96);
+  border: 1px solid rgba(255,255,255,0.85);
+}
+
+.review-intro h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.review-form {
+  gap: 24px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-color: rgba(15,52,64,0.1);
+  background: #fff;
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+  border-color: rgba(120,198,219,0.65);
+}
+
+.rating-stars,
+.star-rating {
+  filter: drop-shadow(0 8px 14px rgba(245,158,11,0.15));
+}
+
+@media (max-width: 760px) {
+  .review-card {
+    padding: 26px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
