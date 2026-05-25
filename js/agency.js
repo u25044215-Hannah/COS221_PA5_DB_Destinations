@@ -444,11 +444,8 @@ async function confirmDeletePackage() {
 /* =========================
    GROUP TRIPS
 ========================= */
-
 async function loadGroupTrips() {
   const grid = document.getElementById("trips-grid");
-
-  if (!grid) return;
 
   const result = await apiRequest(AGENCY_CONTROLLER, "list_group_trips");
 
@@ -458,7 +455,10 @@ async function loadGroupTrips() {
   }
 
   const trips = result.data || [];
+
   updateGroupTripStats(trips);
+
+  if (!grid) return;
 
   if (!trips.length) {
     grid.innerHTML = `<p class="empty-state">No group trips yet.</p>`;
@@ -492,36 +492,6 @@ async function loadGroupTrips() {
   }).join("");
 }
 
-async function createGroupTrip(event) {
-  event.preventDefault();
-
-  const form = event.target;
-
-  const data = {
-    groupName: form.groupName.value,
-    currentMembers: parseInt(form.currentMembers?.value || 0),
-    packageID: form.packageID.value
-  };
-
-  const result = await apiRequest(
-    AGENCY_CONTROLLER,
-    "create_group_trip",
-    "POST",
-    data,
-    true
-  );
-
-  if (result.success) {
-    showMessage("Group trip created.");
-    form.reset();
-
-    await loadGroupTrips();
-    await loadDashboardStats();
-  } else {
-    showMessage(result.message || "Could not create group trip.", "error");
-  }
-}
-
 async function deleteGroupTrip(groupTripID) {
   if (!confirm("Delete this group trip?")) return;
 
@@ -545,31 +515,18 @@ async function deleteGroupTrip(groupTripID) {
 
 function updateGroupTripStats(trips) {
   const totalTrips = trips.length;
+  const totalMembers = trips.reduce(function (sum, trip) {
+    return sum + parseInt(trip.currentMembers || 0);
+  }, 0);
 
-  let totalMembers = 0;
-  let fullTrips = 0;
-
-  trips.forEach(function (trip) {
-    const members = parseInt(trip.currentMembers || 0);
-    const max = parseInt(trip.maxCapacity || 0);
-
-    totalMembers += members;
-
-    if (max > 0 && members >= max) {
-      fullTrips++;
-    }
-  });
-
-  const averageMembers = totalTrips > 0
+  const avgMembers = totalTrips > 0
     ? (totalMembers / totalTrips).toFixed(1)
     : "0";
 
-  const setText = function (id, value) {
+  function setText(id, value) {
     const el = document.getElementById(id);
-    if (el) {
-      el.textContent = value;
-    }
-  };
+    if (el) el.textContent = value;
+  }
 
   setText("groupTripCount", totalTrips);
   setText("tripCount", totalTrips);
@@ -578,13 +535,48 @@ function updateGroupTripStats(trips) {
   setText("groupMemberCount", totalMembers);
   setText("stat-group-members", totalMembers);
 
-  setText("avgGroupSize", averageMembers);
-  setText("stat-average-group-size", averageMembers);
-
-  setText("fullTripCount", fullTrips);
-  setText("stat-full-trips", fullTrips);
+  setText("avgGroupSize", avgMembers);
+  setText("stat-average-group-size", avgMembers);
 }
 
+function renderGroupTripsGrid(trips) {
+  const grid = document.getElementById("trips-grid");
+
+  if (!grid) return;
+
+  if (!trips.length) {
+    grid.innerHTML = `<p class="empty-state">No group trips yet.</p>`;
+    return;
+  }
+
+  grid.innerHTML = trips.map(function (trip) {
+    const packageTitle = trip.packageTitle || `Package #${trip.packageID}`;
+    const destination = [trip.destinationCity, trip.destinationCountry]
+      .filter(Boolean)
+      .join(", ");
+
+    return `
+      <div class="trip-card">
+        <div class="trip-card-top">
+          <div>
+            <span class="trip-pkg-label">${packageTitle}</span>
+            <h3 class="trip-card-name">${trip.groupName}</h3>
+          </div>
+        </div>
+
+        ${destination ? `<p style="color:var(--grey-text);font-size:0.85rem;">📍 ${destination}</p>` : ""}
+
+        <p><strong>${trip.currentMembers || 0}</strong> members</p>
+
+        <div class="trip-actions">
+          <button class="btn btn-sm" style="background:#fde8e8;color:#c0392b;" onclick="deleteGroupTrip(${trip.groupTripID})">
+            🗑️ Delete
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
 
 /* =========================
    DASHBOARD
