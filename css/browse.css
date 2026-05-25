@@ -237,3 +237,96 @@
 .pkg-price-per { font-size: 0.7rem; color: var(--grey-text); }
 .pkg-card-actions { display: flex; gap: 6px; align-items: center; }
 .compare-btn.active { background: var(--green); color: white; border-color: var(--green); }
+
+
+/* =========================================================
+   UI POLISH UPDATE — keeps existing HTML/JS functionality
+   ========================================================= */
+.browse-layout {
+  gap: 36px;
+}
+
+.filters-sidebar {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.8);
+}
+
+.filters-header h4 {
+  font-size: 1.08rem;
+}
+
+.filter-section {
+  transition: background var(--transition);
+}
+
+.search-input-wrap {
+  background: #fff;
+  border-color: rgba(15,52,64,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.search-input-wrap:focus-within {
+  border-color: var(--sky-deep);
+  box-shadow: 0 0 0 4px rgba(120,198,219,0.14);
+}
+
+.package-card,
+.pkg-card,
+.browse-card,
+.result-card {
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(255,255,255,0.82);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.package-card:hover,
+.pkg-card:hover,
+.browse-card:hover,
+.result-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-med);
+}
+
+.package-card img,
+.pkg-card img,
+.browse-card img,
+.result-card img,
+.package-card video,
+.pkg-card video,
+.browse-card video,
+.result-card video {
+  transition: transform 0.5s ease;
+}
+
+.package-card:hover img,
+.pkg-card:hover img,
+.browse-card:hover img,
+.result-card:hover img,
+.package-card:hover video,
+.pkg-card:hover video,
+.browse-card:hover video,
+.result-card:hover video {
+  transform: scale(1.045);
+}
+
+.badge,
+.tag,
+.status-badge {
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .browse-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-sidebar {
+    position: static;
+  }
+}
