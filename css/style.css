@@ -826,3 +826,163 @@ section,
     border-right: none !important;
   }
 }
+
+/* Force hero search bar redesign */
+[class*="search"],
+[class*="Search"] {
+  box-sizing: border-box;
+}
+
+.hero form,
+.hero .search,
+.hero-search-form,
+.search-form,
+.search-container form,
+.search-wrapper form {
+  max-width: 1050px !important;
+  margin: 36px auto 18px !important;
+  padding: 14px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-radius: 32px !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28) !important;
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+}
+
+.hero form > div,
+.hero .search > div,
+.hero-search-form > div,
+.search-form > div {
+  flex: 1 !important;
+  padding: 14px 20px !important;
+  border-radius: 20px !important;
+  background: #f7faf8 !important;
+  border: 1px solid rgba(0, 53, 69, 0.08) !important;
+}
+
+.hero form input,
+.hero form select,
+.hero .search input,
+.hero .search select,
+.hero-search-form input,
+.hero-search-form select,
+.search-form input,
+.search-form select {
+  color: #003545 !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.hero form button,
+.hero .search button,
+.hero-search-form button,
+.search-form button {
+  min-width: 180px !important;
+  border-radius: 22px !important;
+  background: #2f6f4e !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* ===== Hero search card redesign ===== */
+
+.hero-search-card {
+  max-width: 1080px !important;
+  margin: 36px auto 18px !important;
+  padding: 14px !important;
+  border-radius: 32px !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28) !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 0.8fr auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.hero-search-card .search-field {
+  min-height: 72px !important;
+  padding: 14px 18px !important;
+  border-radius: 22px !important;
+  background: #f5faf7 !important;
+  border: 1px solid rgba(0, 53, 69, 0.08) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.hero-search-card .search-divider {
+  display: none !important;
+}
+
+.hero-search-card label {
+  display: block !important;
+  margin-bottom: 6px !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #53676d !important;
+}
+
+.hero-search-card input,
+.hero-search-card select {
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #003545 !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  padding: 0 !important;
+}
+
+.hero-search-card input::placeholder {
+  color: rgba(0, 53, 69, 0.42) !important;
+}
+
+.hero-search-card .search-btn {
+  height: 72px !important;
+  min-width: 190px !important;
+  border-radius: 24px !important;
+  margin: 0 !important;
+  padding: 0 34px !important;
+  background: linear-gradient(135deg, #4f7f45, #2f6f4e) !important;
+  color: #ffffff !important;
+  font-size: 1.05rem !important;
+  font-weight: 900 !important;
+  box-shadow: 0 18px 35px rgba(47, 111, 78, 0.35) !important;
+  border: none !important;
+}
+
+.hero-search-card .search-btn:hover {
+  background: linear-gradient(135deg, #2f6f4e, #003545) !important;
+  transform: translateY(-1px);
+}
+
+.hero-browse-link {
+  display: inline-block !important;
+  margin-top: 12px !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+.hero-browse-link:hover {
+  text-decoration: underline !important;
+}
+
+@media (max-width: 850px) {
+  .hero-search-card {
+    grid-template-columns: 1fr !important;
+    padding: 16px !important;
+  }
+
+  .hero-search-card .search-btn {
+    width: 100% !important;
+  }
+}
