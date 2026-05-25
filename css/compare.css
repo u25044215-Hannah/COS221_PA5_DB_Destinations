@@ -139,3 +139,42 @@
   font-size: 1.5rem; color: var(--green-dark); font-weight: 700;
   margin-bottom: 12px; display: block;
 }
+
+
+/* =========================================================
+   UI POLISH UPDATE — keeps existing HTML/JS functionality
+   ========================================================= */
+.compare-empty {
+  background: rgba(255,255,255,0.72);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+}
+
+.compare-scroll-wrap {
+  border: 1px solid rgba(255,255,255,0.8);
+}
+
+.compare-table {
+  background: rgba(255,255,255,0.96);
+}
+
+.compare-row-label {
+  background: linear-gradient(180deg, var(--off-white), #fff);
+  color: var(--dark-mid);
+}
+
+.compare-pkg-media {
+  box-shadow: inset 0 0 0 1px rgba(15,52,64,0.06);
+}
+
+.compare-remove,
+.remove-compare,
+.compare-clear {
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.compare-remove:hover,
+.remove-compare:hover,
+.compare-clear:hover {
+  transform: translateY(-2px);
+}

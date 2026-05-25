@@ -138,3 +138,50 @@
     min-height: 100vh;
   }
 }
+
+/* =========================================================
+   UI POLISH UPDATE — keeps existing HTML/JS functionality
+   ========================================================= */
+.auth-page {
+  background:
+    radial-gradient(circle at top right, rgba(120,198,219,0.24), transparent 30rem),
+    var(--off-white);
+}
+
+.auth-overlay {
+  background:
+    linear-gradient(140deg, rgba(15,52,64,0.91), rgba(15,52,64,0.56)),
+    radial-gradient(circle at 30% 35%, rgba(120,198,219,0.3), transparent 24rem);
+}
+
+.auth-card {
+  background: rgba(255,255,255,0.96);
+  border: 1px solid rgba(255,255,255,0.85);
+  backdrop-filter: blur(14px);
+}
+
+.auth-card h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.form-group input {
+  border-color: rgba(15,52,64,0.1);
+}
+
+.auth-switch a:hover {
+  color: var(--sky-deep);
+}
+
+@media (max-width: 900px) {
+  .auth-left {
+    min-height: 280px;
+  }
+
+  .auth-brand {
+    padding: 42px;
+  }
+
+  .auth-right {
+    padding: 28px 18px;
+  }
+}
