@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = inputs[1].value;
 
         // Send login data to the PHP login file.
-        const json = await apiPost("LogIn.php", { email, password });
+       const json = await apiPost("../COS221_PA5_DB_Destinations-authorisation/LogIn.php", { email, password });
 
         if (!json.success) {
           throw new Error(json.message || "Login failed");
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const surname = rest.join(" ") || "Traveller";
 
         // Send signup data to the PHP signup file.
-        const json = await apiPost("SignUp.php", {
+        const json = await apiPost("../COS221_PA5_DB_Destinations-authorisation/SignUp.php", {
           name,
           surname,
           email,
