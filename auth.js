@@ -96,10 +96,29 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = "browse.html";
         }
       } else {
-        const fullName = inputs[0].value.trim();
-        const email = inputs[1].value.trim();
-        const password = inputs[2].value;
-        const confirm = inputs[3].value;
+        // SIGNUP PAGE
+
+const passwordInputs = form.querySelectorAll('input[type="password"]');
+
+const fullName = form.querySelector('input[type="text"]').value.trim();
+const email = form.querySelector('input[type="email"]').value.trim();
+const password = passwordInputs[0].value.trim();
+const confirm = passwordInputs[1].value.trim();
+
+if (password !== confirm) {
+  throw new Error("Passwords do not match");
+}
+
+const [name, ...rest] = fullName.split(" ");
+const surname = rest.join(" ") || "Traveller";
+
+const json = await apiPost("../COS221_PA5_DB_Destinations-authorisation/SignUp.php", {
+  name,
+  surname,
+  email,
+  password,
+  userType: "Traveller"
+});
 
         if (password !== confirm) {
           throw new Error("Passwords do not match");
