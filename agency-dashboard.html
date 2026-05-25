@@ -46,7 +46,7 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-packages">12</span>
+          <span class="stat-big" id="packageCount">—</span>
           <span class="stat-label">Active Packages</span>
         </div>
       </div>
@@ -55,7 +55,7 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-bookings">48</span>
+          <span class="stat-big" id="bookingCount">—</span>
           <span class="stat-label">Total Bookings</span>
         </div>
       </div>
@@ -64,7 +64,7 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-revenue">R 214,500</span>
+          <span class="stat-big" id="stat-revenue">—</span>
           <span class="stat-label">Total Revenue</span>
         </div>
       </div>
@@ -73,7 +73,7 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-rating">4.6 ★</span>
+          <span class="stat-big" id="stat-rating">—</span>
           <span class="stat-label">Average Rating</span>
         </div>
       </div>
@@ -82,7 +82,7 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-pending">5</span>
+          <span class="stat-big" id="stat-pending">—</span>
           <span class="stat-label">Pending Bookings</span>
         </div>
       </div>
@@ -190,89 +190,12 @@
   </main>
 
   <script>
-    // ── Mock Data ──────────────────────────────────────────────
-    const mockBookings = [
-      { id: 'BK-001', traveller: 'Alice Mokoena', pkg: 'Bali Bliss 10D', date: '2025-06-12', amount: 'R 28,500', status: 'confirmed' },
-      { id: 'BK-002', traveller: 'James Dube',    pkg: 'Swiss Alps 7D',   date: '2025-06-18', amount: 'R 45,200', status: 'pending' },
-      { id: 'BK-003', traveller: 'Sara Khumalo',  pkg: 'London Explorer', date: '2025-07-02', amount: 'R 32,000', status: 'confirmed' },
-      { id: 'BK-004', traveller: 'Thabo Nkosi',   pkg: 'Bali Bliss 10D', date: '2025-07-15', amount: 'R 28,500', status: 'pending' },
-      { id: 'BK-005', traveller: 'Lindiwe Zulu',  pkg: 'Tokyo 8D',        date: '2025-05-28', amount: 'R 51,000', status: 'cancelled' },
-    ];
-
-    const mockPackages = [
-      { name: 'Bali Bliss 10D',   bookings: 18, price: 'R 28,500' },
-      { name: 'Swiss Alps 7D',    bookings: 11, price: 'R 45,200' },
-      { name: 'London Explorer',  bookings:  9, price: 'R 32,000' },
-      { name: 'Tokyo 8D',         bookings:  7, price: 'R 51,000' },
-      { name: 'Zanzibar Beach 5D',bookings:  3, price: 'R 19,800' },
-    ];
-
-    const mockReviews = [
-      { traveller: 'Alice M.', rating: 5, text: 'Absolutely incredible trip – everything went smoothly!', pkg: 'Bali Bliss 10D' },
-      { traveller: 'James D.', rating: 4, text: 'Great experience overall, the hotel was stunning.', pkg: 'Swiss Alps 7D' },
-      { traveller: 'Sara K.',  rating: 5, text: 'Best vacation I have ever had. Highly recommend!', pkg: 'London Explorer' },
-    ];
-
-    // ── Render Bookings ────────────────────────────────────────
-    function renderBookings(filter = '') {
-      const tbody = document.getElementById('bookings-tbody');
-      const data = filter ? mockBookings.filter(b => b.status === filter) : mockBookings;
-      tbody.innerHTML = data.map(b => `
-        <tr>
-          <td><span class="booking-id">${b.id}</span></td>
-          <td>${b.traveller}</td>
-          <td>${b.pkg}</td>
-          <td>${b.date}</td>
-          <td><strong>${b.amount}</strong></td>
-          <td><span class="status-badge status-badge--${b.status}">${b.status}</span></td>
-          <td>
-            <div class="table-actions">
-              <button class="tbl-btn tbl-btn--view" title="View">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
-              ${b.status === 'pending' ? `
-              <button class="tbl-btn tbl-btn--confirm" title="Confirm" onclick="updateStatus('${b.id}','confirmed')">✓</button>
-              <button class="tbl-btn tbl-btn--cancel"  title="Cancel"  onclick="updateStatus('${b.id}','cancelled')">✗</button>` : ''}
-            </div>
-          </td>
-        </tr>`).join('');
-    }
-
-    function updateStatus(id, newStatus) {
-      const booking = mockBookings.find(b => b.id === id);
-      if (booking) { booking.status = newStatus; renderBookings(); }
-    }
-
-    document.getElementById('booking-status-filter').addEventListener('change', e => renderBookings(e.target.value));
-
-    // ── Render Package Summary ─────────────────────────────────
-    function renderPackageSummary() {
-      document.getElementById('packages-summary').innerHTML = mockPackages.map(p => `
-        <li class="pkg-summary-item">
-          <div class="pkg-summary-info">
-            <span class="pkg-summary-name">${p.name}</span>
-            <span class="pkg-summary-price">${p.price}</span>
-          </div>
-          <span class="pkg-summary-bookings">${p.bookings} bookings</span>
-        </li>`).join('');
-    }
-
-    // ── Render Reviews ─────────────────────────────────────────
-    function renderReviews() {
-      document.getElementById('reviews-snapshot').innerHTML = mockReviews.map(r => `
-        <li class="review-snap-item">
-          <div class="review-snap-header">
-            <span class="review-snap-name">${r.traveller}</span>
-            <span class="review-snap-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
-          </div>
-          <p class="review-snap-text">"${r.text}"</p>
-          <span class="review-snap-pkg">${r.pkg}</span>
-        </li>`).join('');
-    }
-
-    renderBookings();
-    renderPackageSummary();
-    renderReviews();
+    /* Dashboard data is loaded entirely by agency.js:
+       loadDashboardStats()   → stat-packages, stat-bookings, stat-revenue, stat-rating, stat-pending
+       loadBookings()         → bookings-tbody
+       loadPackagesSummary()  → packages-summary
+       loadReviewsSnapshot()  → reviews-snapshot
+       All of these run automatically on DOMContentLoaded. */
   </script>
 
 <script src="js/agency.js"></script>
