@@ -409,7 +409,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           </div>
 
           <div class="package-actions">
-            <a href="package-details.html?packageID=${id}" class="btn btn-primary">View Details</a>
+            <a href="package-detail.html?packageID=${id}" class="btn btn-primary">View Details</a>
             <button type="button" class="btn btn-secondary compare-add" data-id="${id}">
               Add to Compare
             </button>
