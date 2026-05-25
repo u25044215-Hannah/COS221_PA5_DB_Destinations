@@ -1,70 +1,119 @@
 // auth.js
-// This handles both login.html and signup.html.
+
+function getCurrentUser() {
+  const user = localStorage.getItem("currentUser");
+  return user ? JSON.parse(user) : null;
+}
+
+function setCurrentUser(user) {
+  localStorage.setItem("currentUser", JSON.stringify(user));
+}
+
+function logoutUser() {
+  localStorage.removeItem("currentUser");
+  window.location.href = "index.html";
+}
+
+function updateAuthButtons() {
+  const user = getCurrentUser();
+
+  if (user) {
+    const navActions = document.querySelector(".nav-actions");
+
+    if (!navActions) return;
+
+    navActions.innerHTML = "";
+
+    const logoutBtn = document.createElement("button");
+    logoutBtn.textContent = "Log Out";
+    logoutBtn.className = "btn btn-primary btn-sm";
+    logoutBtn.type = "button";
+
+    logoutBtn.addEventListener("click", logoutUser);
+
+    navActions.appendChild(logoutBtn);
+  }
+}
+
+async function postJSON(url, data) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  const text = await response.text();
+
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error("PHP did not return JSON. It returned:", text);
+    throw new Error("Server returned HTML instead of JSON. Check that " + url + " exists and has no PHP errors.");
+  }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Find the login/signup form.
+  updateAuthButtons();
+
   const form = document.querySelector("form.auth-card");
   if (!form) return;
 
-  // Create a message area under the form.
   const message = document.createElement("p");
   message.id = "auth-message";
   message.style.marginTop = "12px";
   form.appendChild(message);
 
-  // Run this when the form is submitted.
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     message.textContent = "Processing...";
+    message.style.color = "black";
 
     const inputs = form.querySelectorAll("input");
-
-    // Check whether the current page is login.html.
     const isLogin = location.pathname.toLowerCase().includes("login");
 
     try {
       if (isLogin) {
-        // LOGIN PAGE
-
         const email = inputs[0].value.trim();
         const password = inputs[1].value;
 
-        // Send login data to the PHP login file.
-       const json = await apiPost("../COS221_PA5_DB_Destinations-authorisation/LogIn.php", { email, password });
+        const json = await postJSON("LogIn.php", {
+          email: email,
+          password: password
+        });
 
         if (!json.success) {
           throw new Error(json.message || "Login failed");
         }
 
-        // Save logged-in user in localStorage.
         setCurrentUser(json.user);
 
-        // Send agents to agency page and travellers to browse page.
-        location.href = json.user.userType === "Agent" ? "agency.html" : "browse.html";
+        if (json.user.userType === "Agent") {
+          window.location.href = "agency.html";
+        } else {
+          window.location.href = "browse.html";
+        }
       } else {
-        // SIGNUP PAGE
-
         const fullName = inputs[0].value.trim();
         const email = inputs[1].value.trim();
         const password = inputs[2].value;
         const confirm = inputs[3].value;
 
-        // Make sure both password fields match.
         if (password !== confirm) {
           throw new Error("Passwords do not match");
         }
 
-        // Split full name into first name and surname.
-        const [name, ...rest] = fullName.split(" ");
-        const surname = rest.join(" ") || "Traveller";
+        const parts = fullName.split(" ");
+        const name = parts[0];
+        const surname = parts.slice(1).join(" ") || "Traveller";
 
-        // Send signup data to the PHP signup file.
-        const json = await apiPost("../COS221_PA5_DB_Destinations-authorisation/SignUp.php", {
-          name,
-          surname,
-          email,
-          password,
+        const json = await postJSON("SignUp.php", {
+          name: name,
+          surname: surname,
+          email: email,
+          password: password,
           userType: "Traveller"
         });
 
@@ -72,12 +121,10 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error(json.message || "Signup failed");
         }
 
-        // Save the new user and redirect.
         setCurrentUser(json.user);
-        location.href = "browse.html";
+        window.location.href = "browse.html";
       }
     } catch (err) {
-      // Show any error message to the user.
       message.textContent = err.message;
       message.style.color = "crimson";
     }
