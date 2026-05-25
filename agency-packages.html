@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manage Packages — Tripistry Agency</title>
+  <title>Manage Packages Tripistry Agency</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/agency.css" />
 </head>
@@ -24,10 +23,12 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Agency Portal
       </span>
-      <a href="#" id="logout-btn" class="btn btn-outline btn-sm">Log Out</a>
+      <!--LOGOUT LOGIC-->
+      <a href="Simple_Agent_Login.html" class="btn btn-outline btn-sm" id="logout-btn">Log Out</a>
     </div>
   </nav>
 
+  <!-- HERO -->
   <section class="agency-hero">
     <div class="container">
       <span class="eyebrow">Package Management</span>
@@ -38,6 +39,7 @@
 
   <main class="container agency-main">
 
+  
     <div class="pkg-toolbar">
       <div class="pkg-toolbar-left">
         <div class="search-input-wrap" style="width:280px;">
@@ -46,9 +48,9 @@
         </div>
         <select id="pkg-status-filter" class="card-select">
           <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="draft">Draft</option>
-          <option value="inactive">Inactive</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Draft">Draft</option>
         </select>
       </div>
       <button class="btn btn-primary" id="add-pkg-btn">
@@ -57,14 +59,14 @@
       </button>
     </div>
 
-    <!-- Cards populated by agency.js → loadAgencyPackages() → renderPackageGrid() -->
+    <!-- PACKAGES GRID -->
     <div class="packages-manage-grid" id="packages-manage-grid">
-      <p style="color:var(--grey-text);padding:2rem 0;">Loading packages…</p>
+      <p class="loading-text">Loading packages…</p>
     </div>
 
   </main>
 
-  <!-- ═══ ADD / EDIT MODAL ═══════════════════════════════════════════ -->
+  <!-- ADD or EDIT MODAL -->
   <div class="modal-overlay" id="pkg-modal" style="display:none;">
     <div class="modal">
       <div class="modal-header">
@@ -72,25 +74,36 @@
         <button class="modal-close" id="close-modal">✕</button>
       </div>
 
-      <!--
-        Fields map directly to Package table columns:
-          title, description, pricePerPerson, currency, maxCapacity,
-          startDate, endDate, destinationCity (split from destination input),
-          destinationCountry (split from destination input), status
-      -->
       <form class="modal-form" id="pkg-form" novalidate>
         <input type="hidden" id="edit-id" />
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label>Package Title <span class="req">*</span></label>
-            <input type="text" id="pkg-name" placeholder="e.g. Bali Bliss 10 Days" required />
-            <span class="field-error" id="err-name"></span>
+            <label>Package Name <span class="req">*</span></label>
+            <input type="text" id="pkg-title" placeholder="e.g. Bali Bliss 10 Days" required />
+            <span class="field-error" id="err-title"></span>
           </div>
           <div class="form-group">
-            <label>Destination <span class="req">*</span></label>
-            <input type="text" id="pkg-destination" placeholder="City, Country  e.g. Paris, France" required />
-            <span class="field-error" id="err-destination"></span>
+            <label>Destination City <span class="req">*</span></label>
+            <input type="text" id="pkg-destination-city" placeholder="e.g. Bali" required />
+            <span class="field-error" id="err-destination-city"></span>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Destination Country <span class="req">*</span></label>
+            <input type="text" id="pkg-destination-country" placeholder="e.g. Indonesia" required />
+            <span class="field-error" id="err-destination-country"></span>
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <select id="pkg-currency">
+              <option value="ZAR">ZAR — South African Rand</option>
+              <option value="USD">USD — US Dollar</option>
+              <option value="EUR">EUR — Euro</option>
+              <option value="GBP">GBP — British Pound</option>
+            </select>
           </div>
         </div>
 
@@ -101,28 +114,30 @@
             <span class="field-error" id="err-price"></span>
           </div>
           <div class="form-group">
-            <label>Currency</label>
-            <select id="pkg-currency">
-              <option value="ZAR">ZAR (R)</option>
-              <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="GBP">GBP (£)</option>
-            </select>
+            <label>Max Travellers <span class="req">*</span></label>
+            <input type="number" id="pkg-max" placeholder="20" min="1" required />
+            <span class="field-error" id="err-max"></span>
           </div>
           <div class="form-group">
-            <label>Max Capacity</label>
-            <input type="number" id="pkg-max" placeholder="20" min="1" />
+            <label>Status</label>
+            <select id="pkg-status">
+              <option value="Active">Active</option>
+              <option value="Draft">Draft</option>
+              <option value="Inactive">Inactive</option>
+            </select>
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-group">
             <label>Start Date</label>
-            <input type="date" id="pkg-start" />
+            <input type="date" id="pkg-start-date" />
+            <span class="field-error" id="err-start-date"></span>
           </div>
           <div class="form-group">
             <label>End Date</label>
-            <input type="date" id="pkg-end" />
+            <input type="date" id="pkg-end-date" />
+            <span class="field-error" id="err-end-date"></span>
           </div>
         </div>
 
@@ -130,15 +145,6 @@
           <label>Description <span class="req">*</span></label>
           <textarea id="pkg-description" rows="4" placeholder="Describe what's included, highlights, accommodation…" required></textarea>
           <span class="field-error" id="err-description"></span>
-        </div>
-
-        <div class="form-group">
-          <label>Status</label>
-          <select id="pkg-status">
-            <option value="Active">Active</option>
-            <option value="Draft">Draft</option>
-            <option value="Inactive">Inactive</option>
-          </select>
         </div>
 
         <div class="modal-footer">
@@ -149,7 +155,6 @@
     </div>
   </div>
 
-  <!-- ═══ DELETE CONFIRM MODAL ═══════════════════════════════════════ -->
   <div class="modal-overlay" id="delete-modal" style="display:none;">
     <div class="modal modal--sm">
       <div class="modal-header">
@@ -157,7 +162,7 @@
         <button class="modal-close" id="close-delete-modal">✕</button>
       </div>
       <p style="padding:0 24px 8px;color:var(--grey-text);">
-        Are you sure you want to delete <strong id="delete-pkg-name"></strong>? This cannot be undone.
+        Are you sure you want to delete <strong id="delete-pkg-name"></strong>?
       </p>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="cancel-delete">Cancel</button>
@@ -166,16 +171,507 @@
     </div>
   </div>
 
-  <!-- Auto-open add modal if ?action=new in URL -->
-  <script>
-    if (new URLSearchParams(location.search).get("action") === "new") {
-      document.addEventListener("DOMContentLoaded", () => {
-        // openAddModal is defined in agency.js; wait for it to load
-        setTimeout(() => { if (typeof openAddModal === "function") openAddModal(); }, 200);
-      });
-    }
-  </script>
+  <div class="modal-overlay" id="flights-modal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="flights-modal-title">Package Flights</h2>
+        <button class="modal-close" id="close-flights-modal">✕</button>
+      </div>
 
-<script src="js/agency.js"></script>
+      <div style="padding:20px 24px 0;">
+        <div id="flights-list" style="margin-bottom:18px;color:var(--grey-text);">Loading flights…</div>
+      </div>
+
+      <form class="modal-form" id="flight-form" novalidate>
+        <input type="hidden" id="flight-package-id" />
+        <input type="hidden" id="flight-component-id" />
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Airline <span class="req">*</span></label>
+            <input type="text" id="flight-airline" placeholder="e.g. Emirates" required />
+            <span class="field-error" id="err-flight-airline"></span>
+          </div>
+          <div class="form-group">
+            <label>Flight Number</label>
+            <input type="text" id="flight-number" placeholder="e.g. EK762" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Departure Airport <span class="req">*</span></label>
+            <input type="text" id="flight-departure" placeholder="e.g. JNB" maxlength="10" required />
+            <span class="field-error" id="err-flight-departure"></span>
+          </div>
+          <div class="form-group">
+            <label>Arrival Airport <span class="req">*</span></label>
+            <input type="text" id="flight-arrival" placeholder="e.g. DXB" maxlength="10" required />
+            <span class="field-error" id="err-flight-arrival"></span>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Departure Time</label>
+            <input type="datetime-local" id="flight-departure-time" />
+          </div>
+          <div class="form-group">
+            <label>Arrival Time</label>
+            <input type="datetime-local" id="flight-arrival-time" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Cabin Class</label>
+            <select id="flight-cabin">
+              <option value="Economy">Economy</option>
+              <option value="Premium Economy">Premium Economy</option>
+              <option value="Business">Business</option>
+              <option value="First">First</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Baggage Allowance</label>
+            <input type="text" id="flight-baggage" placeholder="e.g. 1 checked bag included" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Flight Notes</label>
+          <textarea id="flight-description" rows="3" placeholder="Optional notes for this package flight"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="cancel-flights-modal">Close</button>
+          <button type="submit" class="btn btn-primary" id="save-flight-btn">Save Flight</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/agency.js" defer></script>
+  <script>
+    
+    /*  All data operations go through packages.php*/
+
+    let pkgCache   = [];
+    let deletingId = null;
+    let flightCache = [];
+    let activeFlightPackageID = null;
+
+    /*   Helpers   */
+    function statusClass(status) {
+      const s = (status || "").toLowerCase();
+      if (s === "active")   return "status-badge--active";
+      if (s === "draft")    return "status-badge--draft";
+      if (s === "inactive") return "status-badge--archived";
+      return "";
+    }
+
+    function clearErrors() {
+      ["title","destination-city","destination-country","price","max","description","start-date","end-date"]
+        .forEach(f => {
+          const el = document.getElementById("err-" + f);
+          if (el) el.textContent = "";
+        });
+    }
+
+    function closeModals() {
+      document.getElementById("pkg-modal").style.display     = "none";
+      document.getElementById("delete-modal").style.display  = "none";
+      document.getElementById("flights-modal").style.display = "none";
+    }
+
+    /*   Render grid from pkgCache   */
+    function renderPackages() {
+      const search  = document.getElementById("pkg-search").value.toLowerCase();
+      const statusF = document.getElementById("pkg-status-filter").value;
+
+      const filtered = pkgCache.filter(p =>
+        (!search  || (p.title || "").toLowerCase().includes(search) ||
+                      (p.destinationCity || "").toLowerCase().includes(search) ||
+                      (p.destinationCountry || "").toLowerCase().includes(search)) &&
+        (!statusF || (p.status || "").toLowerCase() === statusF.toLowerCase())
+      );
+
+      const grid = document.getElementById("packages-manage-grid");
+
+      if (!filtered.length) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <p>No packages found.</p>
+            <button class="btn btn-primary" onclick="openAddModal()">+ Add Package</button>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => `
+        <div class="pkg-manage-card" data-id="${p.packageID}">
+          <div class="pkg-manage-top">
+            <div class="pkg-manage-cat">✈️ ${p.destinationCity || "—"}, ${p.destinationCountry || "—"}</div>
+            <span class="status-badge ${statusClass(p.status)}">${p.status || "—"}</span>
+          </div>
+          <h3 class="pkg-manage-name">${p.title}</h3>
+          <p class="pkg-manage-desc">${p.description || ""}</p>
+          <div class="pkg-manage-meta">
+            <div class="pkg-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              Max ${p.maxCapacity || "—"}
+            </div>
+            <div class="pkg-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              ${p.startDate || "—"} → ${p.endDate || "—"}
+            </div>
+          </div>
+          <div class="pkg-manage-price">${p.currency || "ZAR"} ${parseFloat(p.pricePerPerson || 0).toLocaleString()}<span> / person</span></div>
+          <div class="pkg-manage-actions">
+            <button class="btn btn-sm" style="background:var(--sky-light);color:var(--dark);"
+              onclick="openEditModal(${p.packageID})">✏️ Edit</button>
+            <button class="btn btn-sm" style="background:#e5f7f8;color:var(--sky-deep);"
+              onclick="openFlightsModal(${p.packageID})">✈️ Flights</button>
+            <button class="btn btn-sm" style="background:#fde8e8;color:#c0392b;"
+              onclick="openDeleteModal(${p.packageID})">🗑️ Delete</button>
+          </div>
+        </div>`).join("");
+    }
+
+    /*   Load packages from backend   */
+    async function loadPackagesPage() {
+      const grid = document.getElementById("packages-manage-grid");
+      grid.innerHTML = "<p class='loading-text'>Loading packages…</p>";
+
+      const result = await apiRequest(PACKAGE_CONTROLLER, "list_packages");
+
+      if (!result.success) {
+        grid.innerHTML = `<p class="error-text">${result.message || "Could not load packages."}</p>`;
+        return;
+      }
+
+      pkgCache = result.data || [];
+      renderPackages();
+    }
+
+    /*   Open add modal   */
+    function openAddModal() {
+      document.getElementById("modal-title").textContent = "Add New Package";
+      document.getElementById("edit-id").value = "";
+      document.getElementById("pkg-form").reset();
+      // After reset() select reverts to first option (ZAR)
+      clearErrors();
+      document.getElementById("pkg-modal").style.display = "flex";
+    }
+
+    /*   Open edit modal, pre-fill from cache   */
+    function openEditModal(packageID) {
+      const p = pkgCache.find(x => x.packageID === packageID);
+      if (!p) return;
+
+      document.getElementById("modal-title").textContent = "Edit Package";
+      document.getElementById("edit-id").value           = p.packageID;
+
+      // Populate text / number / date fields
+      document.getElementById("pkg-title").value               = p.title || "";
+      document.getElementById("pkg-destination-city").value    = p.destinationCity || "";
+      document.getElementById("pkg-destination-country").value = p.destinationCountry || "";
+      document.getElementById("pkg-price").value               = p.pricePerPerson || "";
+      document.getElementById("pkg-max").value                 = p.maxCapacity || "";
+      document.getElementById("pkg-start-date").value          = p.startDate || "";
+      document.getElementById("pkg-end-date").value            = p.endDate || "";
+      document.getElementById("pkg-description").value         = p.description || "";
+
+      //   STATUS select  
+      document.getElementById("pkg-status").value = p.status || "Active";
+
+    
+      const currencySelect = document.getElementById("pkg-currency");
+      const incomingCurrency = (p.currency || "ZAR").trim().toUpperCase();
+
+      // Check if the value exists as an option; fallback to ZAR
+      const currencyExists = Array.from(currencySelect.options)
+        .some(opt => opt.value === incomingCurrency);
+
+      if (currencyExists) {
+        currencySelect.value = incomingCurrency;
+      } else {
+        console.warn(`Currency "${incomingCurrency}" not found in select options. Falling back to ZAR.`);
+        currencySelect.value = "ZAR";
+      }
+
+      clearErrors();
+      document.getElementById("pkg-modal").style.display = "flex";
+    }
+
+    /*   Open delete confirm modal   */
+    function openDeleteModal(packageID) {
+      deletingId = packageID;
+      const p = pkgCache.find(x => x.packageID === packageID);
+      document.getElementById("delete-pkg-name").textContent = p ? p.title : "";
+      document.getElementById("delete-modal").style.display = "flex";
+    }
+
+    /*   Form submit: create or update   */
+    document.getElementById("pkg-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      clearErrors();
+
+      let valid = true;
+      const title   = document.getElementById("pkg-title").value.trim();
+      const city    = document.getElementById("pkg-destination-city").value.trim();
+      const country = document.getElementById("pkg-destination-country").value.trim();
+      const price   = parseFloat(document.getElementById("pkg-price").value);
+      const maxCap  = parseInt(document.getElementById("pkg-max").value);
+      const desc    = document.getElementById("pkg-description").value.trim();
+      const start   = document.getElementById("pkg-start-date").value;
+      const end     = document.getElementById("pkg-end-date").value;
+
+      //   Read currency at submit time (not cached)  
+      const currency = document.getElementById("pkg-currency").value;
+
+      if (!title)          { document.getElementById("err-title").textContent = "Package name is required."; valid = false; }
+      if (!city)           { document.getElementById("err-destination-city").textContent = "City is required."; valid = false; }
+      if (!country)        { document.getElementById("err-destination-country").textContent = "Country is required."; valid = false; }
+      if (!price || price <= 0) { document.getElementById("err-price").textContent = "Enter a valid price."; valid = false; }
+      if (!maxCap || maxCap < 1){ document.getElementById("err-max").textContent = "Max travellers must be at least 1."; valid = false; }
+      if (!desc)           { document.getElementById("err-description").textContent = "Description is required."; valid = false; }
+      if (start && end && end < start) {
+        document.getElementById("err-end-date").textContent = "End date cannot be before start date.";
+        valid = false;
+      }
+      if (!valid) return;
+
+      // Build payload
+      const payload = {
+        title,
+        destinationCity:    city,
+        destinationCountry: country,
+        currency,                    // note its always sent
+        pricePerPerson:     price,
+        maxCapacity:        maxCap,
+        status:             document.getElementById("pkg-status").value,
+        startDate:          start || null,
+        endDate:            end   || null,
+        description:        desc
+      };
+
+      const editID = document.getElementById("edit-id").value;
+      let result;
+
+      if (editID) {
+        payload.packageID = parseInt(editID);
+        result = await apiRequest(PACKAGE_CONTROLLER, "update_package", "POST", payload, true);
+      } else {
+        result = await apiRequest(PACKAGE_CONTROLLER, "create_package", "POST", payload, true);
+      }
+
+      if (result.success) {
+        showMessage(editID ? "Package updated." : "Package created.");
+        closeModals();
+        loadPackagesPage();
+      } else {
+        showMessage(result.message || "Could not save package.", "error");
+      }
+    });
+
+    /*   Flight helpers   */
+    function normaliseDateTimeForInput(value) {
+      if (!value) return "";
+      return String(value).replace(" ", "T").slice(0, 16);
+    }
+
+    function dateTimeForBackend(value) {
+      return value ? value.replace("T", " ") + ":00" : null;
+    }
+
+    function clearFlightForm() {
+      document.getElementById("flight-component-id").value = "";
+      document.getElementById("flight-airline").value = "";
+      document.getElementById("flight-number").value = "";
+      document.getElementById("flight-departure").value = "";
+      document.getElementById("flight-arrival").value = "";
+      document.getElementById("flight-departure-time").value = "";
+      document.getElementById("flight-arrival-time").value = "";
+      document.getElementById("flight-cabin").value = "Economy";
+      document.getElementById("flight-baggage").value = "";
+      document.getElementById("flight-description").value = "";
+      document.getElementById("err-flight-airline").textContent = "";
+      document.getElementById("err-flight-departure").textContent = "";
+      document.getElementById("err-flight-arrival").textContent = "";
+      document.getElementById("save-flight-btn").textContent = "Save Flight";
+    }
+
+    async function openFlightsModal(packageID) {
+      activeFlightPackageID = packageID;
+      document.getElementById("flight-package-id").value = packageID;
+      const p = pkgCache.find(x => x.packageID === packageID);
+      document.getElementById("flights-modal-title").textContent = `Flights for ${p ? p.title : "Package"}`;
+      document.getElementById("flights-modal").style.display = "flex";
+      clearFlightForm();
+      await loadFlightsForPackage(packageID);
+    }
+
+    async function loadFlightsForPackage(packageID) {
+      const list = document.getElementById("flights-list");
+      list.innerHTML = "Loading flights…";
+
+      const result = await apiRequest(AGENCY_CONTROLLER, "list_components");
+      if (!result.success) {
+        list.innerHTML = `<span style="color:#c0392b;">${result.message || "Could not load flights."}</span>`;
+        return;
+      }
+
+      flightCache = (result.data || []).filter(c =>
+        parseInt(c.packageID) === parseInt(packageID) && c.componentType === "Flight"
+      );
+
+      if (!flightCache.length) {
+        list.innerHTML = "No flights linked to this package yet. Add one below.";
+        return;
+      }
+
+      list.innerHTML = flightCache.map(f => `
+        <div class="pkg-summary-item">
+          <div class="pkg-summary-info">
+            <span class="pkg-summary-name">${f.name}</span>
+            <span class="pkg-summary-price">${f.city || ""}${f.country ? ", " + f.country : ""}</span>
+          </div>
+          <div class="pkg-manage-actions">
+            <button type="button" class="btn btn-sm" style="background:var(--sky-light);color:var(--dark);" onclick="editFlight(${f.componentID})">Edit</button>
+            <button type="button" class="btn btn-sm" style="background:#fde8e8;color:#c0392b;" onclick="deleteFlight(${f.componentID})">Delete</button>
+          </div>
+        </div>`).join("");
+    }
+
+    async function editFlight(componentID) {
+      const result = await apiRequest(AGENCY_CONTROLLER, `get_component&componentID=${componentID}`);
+      if (!result.success || !result.data) {
+        showMessage(result.message || "Could not load flight.", "error");
+        return;
+      }
+
+      const f = result.data;
+      const d = f.details || {};
+      document.getElementById("flight-component-id").value = f.componentID;
+      document.getElementById("flight-airline").value = d.airlineName || f.name || "";
+      document.getElementById("flight-number").value = d.flightNumber || "";
+      document.getElementById("flight-departure").value = d.departureAirport || "";
+      document.getElementById("flight-arrival").value = d.arrivalAirport || "";
+      document.getElementById("flight-departure-time").value = normaliseDateTimeForInput(d.departureTime);
+      document.getElementById("flight-arrival-time").value = normaliseDateTimeForInput(d.arrivalTime);
+      document.getElementById("flight-cabin").value = d.cabinClass || "Economy";
+      document.getElementById("flight-baggage").value = d.baggageAllowance || "";
+      document.getElementById("flight-description").value = f.description || "";
+      document.getElementById("save-flight-btn").textContent = "Update Flight";
+    }
+
+    async function deleteFlight(componentID) {
+      if (!confirm("Delete this flight from the package?")) return;
+      const result = await apiRequest(AGENCY_CONTROLLER, "delete_component", "POST", { componentID }, true);
+      if (result.success) {
+        showMessage("Flight deleted.");
+        clearFlightForm();
+        loadFlightsForPackage(activeFlightPackageID);
+      } else {
+        showMessage(result.message || "Could not delete flight.", "error");
+      }
+    }
+
+    document.getElementById("flight-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      document.getElementById("err-flight-airline").textContent = "";
+      document.getElementById("err-flight-departure").textContent = "";
+      document.getElementById("err-flight-arrival").textContent = "";
+
+      const packageID = parseInt(document.getElementById("flight-package-id").value);
+      const componentID = document.getElementById("flight-component-id").value;
+      const airlineName = document.getElementById("flight-airline").value.trim();
+      const departureAirport = document.getElementById("flight-departure").value.trim().toUpperCase();
+      const arrivalAirport = document.getElementById("flight-arrival").value.trim().toUpperCase();
+
+      let valid = true;
+      if (!airlineName) { document.getElementById("err-flight-airline").textContent = "Airline is required."; valid = false; }
+      if (!departureAirport) { document.getElementById("err-flight-departure").textContent = "Departure airport is required."; valid = false; }
+      if (!arrivalAirport) { document.getElementById("err-flight-arrival").textContent = "Arrival airport is required."; valid = false; }
+      if (!valid) return;
+
+      const payload = {
+        packageID,
+        componentType: "Flight",
+        name: airlineName,
+        city: arrivalAirport,
+        country: "",
+        description: document.getElementById("flight-description").value.trim(),
+        airlineName,
+        flightNumber: document.getElementById("flight-number").value.trim(),
+        departureAirport,
+        arrivalAirport,
+        departureTime: dateTimeForBackend(document.getElementById("flight-departure-time").value),
+        arrivalTime: dateTimeForBackend(document.getElementById("flight-arrival-time").value),
+        cabinClass: document.getElementById("flight-cabin").value,
+        baggageAllowance: document.getElementById("flight-baggage").value.trim()
+      };
+
+      let result;
+      if (componentID) {
+        payload.componentID = parseInt(componentID);
+        result = await apiRequest(AGENCY_CONTROLLER, "update_component", "POST", payload, true);
+      } else {
+        result = await apiRequest(AGENCY_CONTROLLER, "create_component", "POST", payload, true);
+      }
+
+      if (result.success) {
+        showMessage(componentID ? "Flight updated." : "Flight added.");
+        clearFlightForm();
+        loadFlightsForPackage(packageID);
+      } else {
+        showMessage(result.message || "Could not save flight.", "error");
+      }
+    });
+
+    /*   Confirm delete   */
+    document.getElementById("confirm-delete").addEventListener("click", async function() {
+      if (!deletingId) return;
+
+      const result = await apiRequest(
+        PACKAGE_CONTROLLER,
+        "delete_package",
+        "POST",
+        { packageID: deletingId },
+        true
+      );
+
+      if (result.success) {
+        showMessage("Package marked inactive.");
+        closeModals();
+        loadPackagesPage();
+      } else {
+        showMessage(result.message || "Could not delete package.", "error");
+        closeModals();
+      }
+    });
+
+    /*   Event bindings   */
+    document.getElementById("add-pkg-btn").addEventListener("click", openAddModal);
+    document.getElementById("close-modal").addEventListener("click", closeModals);
+    document.getElementById("cancel-modal").addEventListener("click", closeModals);
+    document.getElementById("close-delete-modal").addEventListener("click", closeModals);
+    document.getElementById("cancel-delete").addEventListener("click", closeModals);
+    document.getElementById("close-flights-modal").addEventListener("click", closeModals);
+    document.getElementById("cancel-flights-modal").addEventListener("click", closeModals);
+    document.getElementById("pkg-modal").addEventListener("click",     e => { if (e.target === e.currentTarget) closeModals(); });
+    document.getElementById("delete-modal").addEventListener("click",  e => { if (e.target === e.currentTarget) closeModals(); });
+    document.getElementById("flights-modal").addEventListener("click", e => { if (e.target === e.currentTarget) closeModals(); });
+    document.getElementById("pkg-search").addEventListener("input",   renderPackages);
+    document.getElementById("pkg-status-filter").addEventListener("change", renderPackages);
+
+   
+    if (new URLSearchParams(location.search).get("action") === "new") openAddModal();
+
+    // Initial load
+    document.addEventListener("DOMContentLoaded", function() {
+      loadCsrfToken(PACKAGE_CONTROLLER).then(() => loadPackagesPage());
+    });
+  </script>
 </body>
 </html>
