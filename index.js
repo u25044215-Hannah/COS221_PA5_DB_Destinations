@@ -3,6 +3,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     loadAgencyStats();
+    loadPopularDestinations();
   });
   
   async function loadAgencyStats() {
@@ -37,16 +38,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    loadAgencyStats();
-  
-    // ADD THIS
-    loadPopularDestinations();
-  });
   
   async function loadPopularDestinations() {
     const grid = document.getElementById("destinations-grid");
     if (!grid) return;
+  
+    const destinationImages = [
+      "images/signapore.jpg",
+      "images/capeTown.jpg",
+      "images/abudubi.jpg"
+    ];
   
     try {
       const response = await fetch("api.php?action=getPopularDestinations");
@@ -57,22 +58,22 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
   
-      grid.innerHTML = json.data.map(dest => {
+      grid.innerHTML = json.data.slice(0, 3).map((dest, index) => {
         const city = dest.destinationCity || "";
         const country = dest.destinationCountry || "";
         const count = Number(dest.packageCount || 0);
+        const image = destinationImages[index];
   
         return `
           <div class="dest-card"
+               style="background-image: url('${image}')"
                onclick="window.location='browse.html?destination=${encodeURIComponent(city)}'">
   
             <div class="dest-overlay"></div>
   
             <div class="dest-info">
               <span class="dest-tag">${count} packages</span>
-  
               <h3>${city}</h3>
-  
               <p>${country}</p>
   
               <a href="browse.html?destination=${encodeURIComponent(city)}"
