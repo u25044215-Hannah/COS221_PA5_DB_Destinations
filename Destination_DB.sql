@@ -895,13 +895,15 @@ VALUES
 (15, 'Johannesburg City Experience', 'A city and culture package for local travellers.', 12000.00, 'ZAR', 30, '2026-09-01', '2026-09-05', 'Johannesburg', 'South Africa', 'Active');
 
 INSERT INTO `GroupTrip` (`groupName`, `currentMembers`, `packageID`)
-SELECT CONCAT(title, ' Group'), 6, packageID
-FROM `Package`
-WHERE agentID = 15;
+SELECT CONCAT(p.title, ' Group'), 2, p.packageID
+FROM `Package` p
+LEFT JOIN `GroupTrip` gt ON gt.packageID = p.packageID
+WHERE p.agentID = 15
+  AND gt.groupTripID IS NULL;
 
-INSERT INTO `Booking` 
+INSERT INTO `Booking`
 (`userID`, `agentID`, `packageID`, `groupTripID`, `numGuests`, `totalPrice`, `status`, `bookedAt`)
-SELECT 
+SELECT
   1,
   15,
   p.packageID,
@@ -914,55 +916,34 @@ FROM `Package` p
 JOIN `GroupTrip` gt ON gt.packageID = p.packageID
 WHERE p.agentID = 15;
 
-INSERT INTO `Booking` 
-(`userID`, `agentID`, `packageID`, `groupTripID`, `numGuests`, `totalPrice`, `status`, `bookedAt`)
-SELECT 
-  2,
-  15,
-  p.packageID,
-  gt.groupTripID,
-  1,
-  p.pricePerPerson,
-  'Pending',
-  NOW()
-FROM `Package` p
-JOIN `GroupTrip` gt ON gt.packageID = p.packageID
-WHERE p.agentID = 15;
-
-INSERT INTO `GroupMembership`
-(`userID`, `groupTripID`, `role`, `joinedAt`, `paymentStatus`)
-SELECT 1, gt.groupTripID, 'Leader', NOW(), 'Paid'
-FROM `GroupTrip` gt
-JOIN `Package` p ON gt.packageID = p.packageID
-WHERE p.agentID = 15;
-
-INSERT INTO `GroupMembership`
-(`userID`, `groupTripID`, `role`, `joinedAt`, `paymentStatus`)
-SELECT 2, gt.groupTripID, 'Member', NOW(), 'Pending'
-FROM `GroupTrip` gt
-JOIN `Package` p ON gt.packageID = p.packageID
-WHERE p.agentID = 15;
-
 INSERT INTO `Review`
 (`userID`, `packageID`, `comment`, `overallScore`, `cleanlinessScore`, `serviceScore`)
-SELECT 
+SELECT
   1,
-  packageID,
-  CONCAT('Excellent experience on ', title, '. Everything was well organised.'),
+  p.packageID,
+  CONCAT('Great package: ', p.title, '. Everything was well organised.'),
   5,
   5,
   5
-FROM `Package`
-WHERE agentID = 15;
+FROM `Package` p
+LEFT JOIN `Review` r 
+  ON r.packageID = p.packageID 
+ AND r.userID = 1
+WHERE p.agentID = 15
+  AND r.reviewID IS NULL;
 
 INSERT INTO `Review`
 (`userID`, `packageID`, `comment`, `overallScore`, `cleanlinessScore`, `serviceScore`)
-SELECT 
+SELECT
   2,
-  packageID,
-  CONCAT('Good package for ', destinationCity, ', but the schedule could be improved.'),
+  p.packageID,
+  CONCAT('Good experience in ', p.destinationCity, '. The trip was enjoyable.'),
   4,
   4,
   4
-FROM `Package`
-WHERE agentID = 15;
+FROM `Package` p
+LEFT JOIN `Review` r 
+  ON r.packageID = p.packageID 
+ AND r.userID = 2
+WHERE p.agentID = 15
+  AND r.reviewID IS NULL;
