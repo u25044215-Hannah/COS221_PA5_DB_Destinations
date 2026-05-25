@@ -160,9 +160,14 @@ async function loadAgencyPackages() {
 
   if (!grid) return;
 
+  grid.innerHTML = `<p style="color:var(--grey-text);padding:2rem 0;">Loading packages...</p>`;
+
   const result = await apiRequest(PACKAGE_CONTROLLER, "list_packages");
 
+  console.log("Packages result:", result);
+
   if (!result.success) {
+    grid.innerHTML = `<p class="empty-state">${result.message || "Could not load packages."}</p>`;
     showMessage(result.message || "Could not load packages.", "error");
     return;
   }
@@ -710,7 +715,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   loadDashboardStats();
   loadBookings();
-  loadReviewsSnapshot();
   loadPackageOptions();
   loadAgencyPackages();
   loadGroupTrips();
