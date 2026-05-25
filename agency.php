@@ -554,12 +554,128 @@ function deleteGroupTrip($conn, $agentID, $input) {
     respond(true, ["groupTripID" => $groupTripID], "Group trip deleted.");
 }
 
+function listBookings($conn, $agentID) {
+    $stmt = safePrepare($conn, "
+        SELECT 
+            b.bookingID,
+            b.userID,
+            b.agentID,
+            b.packageID,
+            b.groupTripID,
+            b.numGuests,
+            b.totalPrice,
+            b.status,
+            b.bookedAt,
+            u.firstName,
+            u.lastName,
+            p.title AS packageTitle,
+            p.currency
+        FROM `Booking` b
+        JOIN `User` u ON b.userID = u.userID
+        JOIN `Package` p ON b.packageID = p.packageID
+        WHERE b.agentID = ?
+        ORDER BY b.bookedAt DESC
+    ");
+
+    $stmt->bind_param("i", $agentID);
+    $stmt->execute();
+
+    respond(true, $stmt->get_result()->fetch_all(MYSQLI_ASSOC), "Bookings loaded.");
+}
+
+function getDashboardStats($conn, $agentID) {
+    $stmt = safePrepare($conn, "
+        SELECT 
+            COALESCE(SUM(totalPrice), 0) AS totalRevenue,
+            COUNT(*) AS totalBookings,
+            SUM(CASE WHEN LOWER(status) = 'pending' THEN 1 ELSE 0 END) AS pendingBookings
+        FROM `Booking`
+        WHERE agentID = ?
+    ");
+
+    $stmt->bind_param("i", $agentID);
+    $stmt->execute();
+    $bookingStats = $stmt->get_result()->fetch_assoc();
+
+    $stmt = safePrepare($conn, "
+        SELECT COALESCE(AVG(r.overallScore), 0) AS avgRating
+        FROM `Review` r
+        JOIN `Package` p ON r.packageID = p.packageID
+        WHERE p.agentID = ?
+    ");
+
+    $stmt->bind_param("i", $agentID);
+    $stmt->execute();
+    $ratingStats = $stmt->get_result()->fetch_assoc();
+
+    $stmt = safePrepare($conn, "
+        SELECT 
+            r.reviewID,
+            r.userID,
+            r.packageID,
+            r.comment,
+            r.overallScore,
+            r.cleanlinessScore,
+            r.serviceScore,
+            CONCAT(u.firstName, ' ', u.lastName) AS travellerName,
+            p.title AS packageTitle
+        FROM `Review` r
+        JOIN `User` u ON r.userID = u.userID
+        JOIN `Package` p ON r.packageID = p.packageID
+        WHERE p.agentID = ?
+        ORDER BY r.reviewID DESC
+        LIMIT 5
+    ");
+
+    $stmt->bind_param("i", $agentID);
+    $stmt->execute();
+    $recentReviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    respond(true, [
+        "totalRevenue" => $bookingStats["totalRevenue"],
+        "totalBookings" => $bookingStats["totalBookings"],
+        "pendingBookings" => $bookingStats["pendingBookings"],
+        "avgRating" => $ratingStats["avgRating"],
+        "recentReviews" => $recentReviews
+    ], "Dashboard stats loaded.");
+}
+
+function getGroupTripEnrollees($conn, $agentID, $input) {
+    $groupTripID = getIDFromRequest($input, "groupTripID");
+
+    $stmt = safePrepare($conn, "
+        SELECT 
+            gm.membershipID,
+            gm.userID,
+            gm.groupTripID,
+            gm.role,
+            gm.joinedAt,
+            gm.paymentStatus,
+            u.firstName,
+            u.lastName,
+            u.emailAddress
+        FROM `GroupMembership` gm
+        JOIN `User` u ON gm.userID = u.userID
+        JOIN `GroupTrip` gt ON gm.groupTripID = gt.groupTripID
+        JOIN `Package` p ON gt.packageID = p.packageID
+        WHERE gm.groupTripID = ?
+          AND p.agentID = ?
+        ORDER BY gm.joinedAt DESC
+    ");
+
+    $stmt->bind_param("ii", $groupTripID, $agentID);
+    $stmt->execute();
+
+    respond(true, $stmt->get_result()->fetch_all(MYSQLI_ASSOC), "Group trip enrollees loaded.");
+}
+
 $input = getInput();
 $action = getAction($input);
 
 if ($action === "health") {
     respond(true, ["available_actions" => [
         "get_csrf_token", "get_agency_profile", "update_agency_profile",
+        "list_bookings", "get_dashboard_stats", "get_group_trip_enrollees",
         "list_components", "get_component", "create_component", "update_component", "delete_component",
         "list_group_trips", "get_group_trip", "create_group_trip", "update_group_trip", "delete_group_trip"
     ]], "Agencies backend is running.");
@@ -592,5 +708,8 @@ switch ($action) {
     case "create_group_trip": createGroupTrip($conn, $agentID, $input); break;
     case "update_group_trip": updateGroupTrip($conn, $agentID, $input); break;
     case "delete_group_trip": deleteGroupTrip($conn, $agentID, $input); break;
+    case "list_bookings": listBookings($conn, $agentID); break;
+    case "get_dashboard_stats": getDashboardStats($conn, $agentID); break;
+    case "get_group_trip_enrollees": getGroupTripEnrollees($conn, $agentID, $input); break;
     default: fail("Unknown action: " . $action, 404);
 }
