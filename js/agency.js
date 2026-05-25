@@ -1,11 +1,17 @@
-//u25038967 Shelby Bodenstein 
+/**
+ * agency.js — Tripistry Agency Frontend
+ * Combined script for dashboard, packages, group trips, components,
+ * bookings, reviews, CSRF handling, and logout.
+ */
 
 const PACKAGE_CONTROLLER = "../packages.php";
 const AGENCY_CONTROLLER = "../agency.php";
 
 let csrfTokens = {};
 
-//core api helper
+/* =========================
+   CORE API HELPER
+========================= */
 
 async function apiRequest(file, action, method = "GET", data = null, needsCsrf = false) {
   const url = `${file}?action=${action}`;
@@ -50,7 +56,9 @@ async function apiRequest(file, action, method = "GET", data = null, needsCsrf =
   }
 }
 
-//CSRF
+/* =========================
+   CSRF
+========================= */
 
 async function loadCsrfToken(file = PACKAGE_CONTROLLER) {
   try {
@@ -67,7 +75,9 @@ async function loadCsrfToken(file = PACKAGE_CONTROLLER) {
   return csrfTokens[file] || null;
 }
 
-//message box
+/* =========================
+   MESSAGE BOX
+========================= */
 
 function showMessage(message, type = "success") {
   let box = document.getElementById("messageBox");
@@ -89,7 +99,9 @@ function showMessage(message, type = "success") {
   }, 3500);
 }
 
-//package drop down options
+/* =========================
+   PACKAGE DROPDOWN OPTIONS
+========================= */
 
 async function loadPackageOptions() {
   const selects = document.querySelectorAll("#trip-package, select[name='packageID'], #packageID");
@@ -118,7 +130,9 @@ async function loadPackageOptions() {
   });
 }
 
-//packages
+/* =========================
+   PACKAGES
+========================= */
 
 async function loadAgencyPackages() {
   const table = document.getElementById("packagesTableBody");
@@ -315,7 +329,9 @@ async function deletePackage(packageID) {
   }
 }
 
-//dashboard summary
+/* =========================
+   DASHBOARD SUMMARY
+========================= */
 
 async function loadPackagesSummary() {
   const list = document.getElementById("packages-summary");
@@ -401,7 +417,9 @@ async function loadDashboardStats() {
   }
 }
 
-//bookings
+/* =========================
+   BOOKINGS
+========================= */
 
 async function loadBookings() {
   const tbody = document.getElementById("bookings-tbody");
@@ -447,7 +465,9 @@ async function loadBookings() {
   }).join("");
 }
 
-//reviews
+/* =========================
+   REVIEWS SNAPSHOT
+========================= */
 
 async function loadReviewsSnapshot() {
   const list = document.getElementById("reviews-snapshot");
@@ -484,7 +504,9 @@ async function loadReviewsSnapshot() {
   }).join("");
 }
 
-//group trips
+/* =========================
+   GROUP TRIPS
+========================= */
 
 async function loadGroupTrips() {
   if (typeof loadGroupTripsPage === "function") {
@@ -640,7 +662,9 @@ async function openEnrolleesModal(groupTripID) {
     : "<p>No travellers enrolled yet.</p>";
 }
 
-//components
+/* =========================
+   COMPONENTS
+========================= */
 
 async function loadComponents() {
   const table = document.getElementById("componentsTableBody");
@@ -741,7 +765,9 @@ async function deleteComponent(componentID) {
   }
 }
 
-//logout
+/* =========================
+   LOGOUT
+========================= */
 
 function setupLogout() {
   const logoutBtn = document.getElementById("logout-btn");
@@ -757,11 +783,13 @@ function setupLogout() {
       console.warn("Logout request failed:", error.message);
     }
 
-    window.location.href = "Simple_Agent_Login.html";
+    window.location.href = "../traveller ui/login.html";
   });
 }
 
-//filters
+/* =========================
+   FILTERS
+========================= */
 
 function setupBookingStatusFilter() {
   const bookingFilter = document.getElementById("booking-status-filter");
@@ -779,7 +807,9 @@ function setupBookingStatusFilter() {
   });
 }
 
-//form listeners
+/* =========================
+   FORM LISTENERS
+========================= */
 
 function setupForms() {
   const createPackageForm = document.getElementById("createPackageForm");
@@ -804,7 +834,9 @@ function setupForms() {
   }
 }
 
-//page start up
+/* =========================
+   PAGE STARTUP
+========================= */
 
 document.addEventListener("DOMContentLoaded", function () {
   loadCsrfToken(PACKAGE_CONTROLLER);
