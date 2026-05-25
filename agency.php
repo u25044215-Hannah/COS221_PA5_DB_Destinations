@@ -3,17 +3,12 @@
 // Shelby Bodenstein
 // Tripistry - Agency, component, and group trip backend controller
 
-//checks if the session is already open, because it is called by multiple different things, it can open a session and then get stuck cause they don't close, hence the timeout
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 //gets the connection to the database
-require_once __DIR__ . "config.php";
-
-//confusing the server, need to remove the double call of api
-/*if (file_exists(__DIR__ . "api.php")) {
-    require_once __DIR__ . "api.php";
-}*/
+require_once __DIR__ . "/config.php";
+if (file_exists(__DIR__ . "/includes/auth_check.php")) {
+    require_once __DIR__ . "/includes/auth_check.php";
+}
 
 //gives responses as JSON
 header("Content-Type: application/json; charset=utf-8");
