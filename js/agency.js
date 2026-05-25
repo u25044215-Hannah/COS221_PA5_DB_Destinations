@@ -175,25 +175,33 @@ async function loadAgencyPackages() {
   _packages = result.data || [];
   renderPackageGrid(_packages);
 }
-
 function renderPackageGrid(packages) {
   const grid = document.getElementById("packages-manage-grid");
 
   if (!grid) return;
 
-  const search = (document.getElementById("pkg-search")?.value || "").toLowerCase();
-  const statusFilter = (document.getElementById("pkg-status-filter")?.value || "").toLowerCase();
+  const search = (document.getElementById("pkg-search")?.value || "")
+    .trim()
+    .toLowerCase();
+
+  const statusFilter = (document.getElementById("pkg-status-filter")?.value || "")
+    .trim()
+    .toLowerCase();
 
   const filtered = packages.filter(function (pkg) {
+    const title = (pkg.title || "").toLowerCase();
+    const city = (pkg.destinationCity || "").toLowerCase();
+    const country = (pkg.destinationCountry || "").toLowerCase();
+    const packageStatus = (pkg.status || "").trim().toLowerCase();
+
     const matchesSearch =
       !search ||
-      (pkg.title || "").toLowerCase().includes(search) ||
-      (pkg.destinationCity || "").toLowerCase().includes(search) ||
-      (pkg.destinationCountry || "").toLowerCase().includes(search);
+      title.includes(search) ||
+      city.includes(search) ||
+      country.includes(search);
 
     const matchesStatus =
-      !statusFilter ||
-      (pkg.status || "").toLowerCase() === statusFilter;
+      !statusFilter || packageStatus === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -209,8 +217,13 @@ function renderPackageGrid(packages) {
   }
 
   grid.innerHTML = filtered.map(function (pkg) {
-    const status = (pkg.status || "Active").toLowerCase();
-    const destination = [pkg.destinationCity, pkg.destinationCountry].filter(Boolean).join(", ");
+    const statusText = pkg.status || "Active";
+    const statusClass = statusText.trim().toLowerCase();
+
+    const destination = [pkg.destinationCity, pkg.destinationCountry]
+      .filter(Boolean)
+      .join(", ");
+
     const dates = pkg.startDate || pkg.endDate
       ? `${fmtDate(pkg.startDate)} → ${fmtDate(pkg.endDate)}`
       : "Dates TBD";
@@ -219,12 +232,12 @@ function renderPackageGrid(packages) {
       <div class="pkg-manage-card">
         <div class="pkg-manage-top">
           <div class="pkg-manage-cat">✈️ ${destination || "General"}</div>
-          <span class="status-badge status-badge--${status}">
-            ${pkg.status || "Active"}
+          <span class="status-badge status-badge--${statusClass}">
+            ${statusText}
           </span>
         </div>
 
-        <h3 class="pkg-manage-name">${pkg.title}</h3>
+        <h3 class="pkg-manage-name">${pkg.title || "Untitled Package"}</h3>
         <p class="pkg-manage-dest">📍 ${destination || "—"}</p>
         <p class="pkg-manage-desc">${pkg.description || ""}</p>
 
@@ -560,8 +573,12 @@ async function loadDashboardStats() {
   }
 
   if (tripRes.success) {
-    setText("groupTripCount", (tripRes.data || []).length);
-  }
+  const tripCount = (tripRes.data || []).length;
+
+  setText("groupTripCount", tripCount);
+  setText("tripCount", tripCount);
+  setText("stat-trips", tripCount);
+}
 
   if (statsRes.success && statsRes.data) {
     const revenue = parseFloat(statsRes.data.totalRevenue || 0);
