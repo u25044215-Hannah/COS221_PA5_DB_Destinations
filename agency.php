@@ -469,7 +469,14 @@ function deleteComponent($conn, $agentID, $input) {
 function listGroupTrips($conn, $agentID) {
     $stmt = safePrepare($conn, "
         SELECT gt.groupTripID, gt.groupName, gt.currentMembers, gt.packageID,
-               p.title AS packageTitle, p.destinationCity, p.destinationCountry
+               p.title AS packageTitle,
+               p.destinationCity,
+               p.destinationCountry,
+               p.startDate,
+               p.endDate,
+               p.maxCapacity,
+               p.currency,
+               p.pricePerPerson
         FROM `GroupTrip` gt
         JOIN `Package` p ON gt.packageID = p.packageID
         WHERE p.agentID = ?
