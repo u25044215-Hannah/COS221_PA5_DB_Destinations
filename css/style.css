@@ -136,80 +136,520 @@ body {
   font-size: 0.82rem;
 }
 
-.partners-section {
-  max-width: 1100px;
-  margin: 70px auto;
-  padding: 50px 40px;
-  border-radius: 28px;
-  background: #f8faf7;
-  text-align: center;
+/* =========================================================
+   UI POLISH UPDATE — keeps existing HTML/JS functionality
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap');
+
+:root {
+  --green: #4f7d45;
+  --green-dark: #244f38;
+  --green-soft: #e7f4ea;
+  --sky: #78c6db;
+  --sky-light: #e7f8fc;
+  --sky-deep: #2585a2;
+  --dark: #0f3440;
+  --dark-mid: #225568;
+  --charcoal: #263235;
+  --grey-text: #68777d;
+  --grey-mid: #b8c4c8;
+  --grey-light: #e8eef0;
+  --off-white: #f7faf8;
+  --cream: #fffaf1;
+  --coral: #ff8f70;
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-xl: 36px;
+
+  --shadow-soft: 0 14px 38px rgba(15, 52, 64, 0.08);
+  --shadow-med: 0 24px 58px rgba(15, 52, 64, 0.13);
+  --shadow-deep: 0 34px 90px rgba(15, 52, 64, 0.2);
+
+  --transition: 0.25s ease;
 }
 
-.partners-section .eyebrow {
-  color: #6b7f59;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+html {
+  scroll-behavior: smooth;
 }
 
-.partners-section h2 {
-  font-size: 48px;
-  color: #123f4a;
-  margin: 10px 0 25px;
+body {
+  font-family: 'DM Sans', Arial, sans-serif;
+  color: var(--dark);
+  background:
+    radial-gradient(circle at top left, rgba(120,198,219,0.16), transparent 34rem),
+    linear-gradient(180deg, #fbfdfb 0%, var(--off-white) 100%);
+  min-height: 100vh;
 }
 
-.partners-stats {
-  display: flex;
-  justify-content: center;
-  gap: 22px;
-  flex-wrap: wrap;
+h1, h2, h3, .hero-title, .detail-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.03em;
 }
 
-.stat-card {
-  background: white;
-  padding: 22px 28px;
-  border-radius: 20px;
-  min-width: 220px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+p {
+  line-height: 1.7;
 }
 
-.stat-card strong {
-  display: block;
-  font-size: 34px;
-  color: #123f4a;
+.navbar {
+  height: 82px;
+  background: rgba(15, 52, 64, 0.82);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 14px 45px rgba(10, 34, 42, 0.18);
 }
 
-.stat-card span {
-  color: #60736a;
+.nav-links a {
+  position: relative;
   font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 8px 0;
 }
 
-.experience-section .section-header {
-  text-align: center;
-  max-width: 850px;
-  margin: 0 auto 38px;
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  border-radius: 999px;
+  background: var(--sky);
+  transition: width var(--transition);
 }
 
-.experience-section .eyebrow {
-  display: inline-block;
-  margin-bottom: 10px;
-  color: #6b7f59;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+.nav-links a.active::after,
+.nav-links a:hover::after {
+  width: 100%;
 }
 
-.experience-section .section-header h2 {
-  font-size: clamp(38px, 5vw, 64px);
-  line-height: 1;
-  color: #123f4a;
-  margin-bottom: 14px;
+.nav-actions .btn,
+.btn {
+  box-shadow: 0 10px 22px rgba(15,52,64,0.08);
 }
 
-.experience-section .section-header p {
-  font-size: 20px;
-  color: #48625c;
-  max-width: 680px;
+.btn-primary {
+  background: linear-gradient(135deg, var(--green), var(--green-dark));
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(36,79,56,0.25);
+}
+
+.btn-outline:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.85);
+  transform: translateY(-2px);
+}
+
+.card,
+.summary-card,
+.booking-card,
+.review-card,
+.compare-table,
+.filters-sidebar,
+.package-card,
+.detail-sidebar,
+.auth-card {
+  border: 1px solid rgba(255,255,255,0.75);
+  box-shadow: var(--shadow-soft);
+}
+
+input,
+select,
+textarea {
+  font-family: 'DM Sans', Arial, sans-serif;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 4px rgba(120,198,219,0.18);
+}
+
+::selection {
+  background: var(--sky);
+  color: white;
+}
+
+@media (max-width: 760px) {
+  .navbar {
+    height: auto;
+    min-height: 76px;
+    padding: 12px 5%;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    gap: 18px;
+  }
+
+  .nav-actions {
+    margin-left: auto;
+  }
+}
+/* ===== Traveller UI spacing fixes ===== */
+
+main,
+.page-main,
+.container {
+  max-width: 1200px;
   margin: 0 auto;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+section {
+  margin-bottom: 72px;
+}
+
+.hero,
+.trips-hero,
+.bookings-section,
+.destinations-section,
+.experiences-section {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+/* Fix "Your Trips" section being too cramped */
+#bookings,
+.bookings-section,
+.your-trips {
+  margin-bottom: 80px;
+}
+
+#bookings h1,
+#bookings h2,
+.bookings-section h1,
+.bookings-section h2 {
+  margin-bottom: 24px;
+}
+
+#bookings p,
+.bookings-section p {
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* Fix button overlapping content */
+.btn,
+button,
+a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  margin-bottom: 24px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  line-height: 1;
+}
+
+/* Fix destination cards */
+.destination-grid,
+.destinations-grid,
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.destination-card,
+.feature-card,
+.package-card {
+  min-height: 320px;
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+/* Fix curved image/card cut-off */
+.destination-card img,
+.feature-card img,
+.package-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Fix headings running into cards */
+.section-header,
+.experiences-header {
+  margin-bottom: 32px;
+}
+
+.section-header h2,
+.experiences-header h2,
+.experiences-section h2 {
+  margin-top: 8px;
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+
+.section-header p,
+.experiences-header p,
+.experiences-section p {
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* Fix adventure image spacing */
+.experience-grid,
+.adventure-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.experience-grid img,
+.adventure-grid img {
+  width: 100%;
+  border-radius: 28px;
+  object-fit: cover;
+}
+
+/* Mobile spacing */
+@media (max-width: 768px) {
+  main,
+  .page-main,
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  section {
+    margin-bottom: 48px;
+  }
+
+  .experience-grid,
+  .adventure-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .destination-grid,
+  .destinations-grid,
+  .featured-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* ===== Fix washed-out white buttons / filter blocks ===== */
+
+.filters,
+.filter-card,
+.filter-panel,
+.sidebar,
+.browse-filters {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 53, 69, 0.08);
+  box-shadow: 0 18px 45px rgba(0, 53, 69, 0.08);
+}
+
+.filters input,
+.filters select,
+.filter-card input,
+.filter-card select,
+.filter-panel input,
+.filter-panel select,
+.browse-filters input,
+.browse-filters select {
+  background: #ffffff;
+  color: #003545;
+  border: 1px solid rgba(0, 53, 69, 0.18);
+  box-shadow: none;
+}
+
+.btn,
+button,
+input[type="submit"],
+a.btn {
+  background: #2f6f4e;
+  color: #ffffff !important;
+  border: 1px solid #2f6f4e;
+  box-shadow: 0 10px 24px rgba(47, 111, 78, 0.22);
+  opacity: 1;
+}
+
+.btn:hover,
+button:hover,
+input[type="submit"]:hover,
+a.btn:hover {
+  background: #255b40;
+  border-color: #255b40;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.btn-outline,
+.btn-secondary {
+  background: transparent;
+  color: #003545 !important;
+  border: 1px solid rgba(0, 53, 69, 0.25);
+  box-shadow: none;
+}
+
+.btn-outline:hover,
+.btn-secondary:hover {
+  background: #003545;
+  color: #ffffff !important;
+}
+
+button:disabled,
+.btn:disabled,
+.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Specifically fixes the "View All Packages" white pill */
+.view-all,
+.view-all-packages,
+#view-all-packages,
+a[href*="packages"] {
+  color: #ffffff !important;
+}
+
+.view-toggle button,
+.layout-toggle button,
+.grid-toggle button {
+  width: 46px;
+  height: 42px;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #003545 !important;
+  border: 1px solid rgba(0, 53, 69, 0.15);
+  box-shadow: none;
+}
+
+.view-toggle,
+.view-buttons,
+.layout-toggle,
+.grid-toggle {
+  display: none !important;
+}
+
+/* Fix rating filter buttons */
+.rating-filter button,
+.rating-filters button,
+.filter-rating button,
+.minimum-rating button,
+.filters button,
+.filter-chip {
+  background: #ffffff !important;
+  color: #2f6f4e !important;
+  border: 1px solid rgba(47, 111, 78, 0.25) !important;
+  box-shadow: none !important;
+}
+
+.rating-filter button.active,
+.rating-filters button.active,
+.filter-rating button.active,
+.minimum-rating button.active,
+.filters button.active,
+.filter-chip.active {
+  background: #4f7f45 !important;
+  color: #ffffff !important;
+  border-color: #4f7f45 !important;
+}
+
+.rating-filter button:hover,
+.rating-filters button:hover,
+.filter-rating button:hover,
+.minimum-rating button:hover,
+.filters button:hover,
+.filter-chip:hover {
+  background: #eef6ef !important;
+  color: #2f6f4e !important;
+}
+
+/* ===== Fix invisible rating chips ===== */
+
+.filter-chip,
+.rating-chip,
+.rating-filter .chip,
+.filters .chip,
+.filters a,
+.filters button,
+.filters .filter-option {
+  background: #ffffff !important;
+  color: #2f6f4e !important;
+  border: 1px solid rgba(47, 111, 78, 0.22) !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.04) !important;
+  opacity: 1 !important;
+}
+
+/* Active selected chip */
+.filter-chip.active,
+.rating-chip.active,
+.rating-filter .chip.active,
+.filters .chip.active,
+.filters a.active,
+.filters button.active,
+.filters .filter-option.active {
+  background: #4f7f45 !important;
+  color: #ffffff !important;
+  border-color: #4f7f45 !important;
+}
+
+/* Hover */
+.filter-chip:hover,
+.rating-chip:hover,
+.rating-filter .chip:hover,
+.filters .chip:hover,
+.filters a:hover,
+.filters button:hover,
+.filters .filter-option:hover {
+  background: #eef6ef !important;
+  color: #2f6f4e !important;
+}
+
+/* Force text visibility */
+.filter-chip *,
+.rating-chip *,
+.filters * {
+  color: inherit !important;
+}
+
+/* More interesting traveller background */
+body {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(79, 127, 69, 0.18), transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(0, 53, 69, 0.14), transparent 30%),
+    radial-gradient(circle at 70% 85%, rgba(123, 176, 170, 0.18), transparent 32%),
+    linear-gradient(135deg, #f8fbf8 0%, #eef5f1 45%, #f7faf8 100%) !important;
+  background-attachment: fixed;
+}
+
+/* Soft glass effect for main cards */
+.filters-sidebar,
+.package-card,
+.compare-card,
+.booking-card,
+.review-card,
+.stat-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* Optional subtle pattern */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0, 53, 69, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 53, 69, 0.025) 1px, transparent 1px);
+  background-size: 42px 42px;
+  z-index: -1;
 }
