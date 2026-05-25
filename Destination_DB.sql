@@ -202,7 +202,8 @@ INSERT INTO `User` VALUES
 (11,'Oliver','White','oliver.white@travelco.com','+1-212-555-1101','American','1980-05-10','Agent','$2y$12$9rrEH0Rq9xPC3isoCj7dauWVk4ubeoLMZ7EE2.ns6fipXKvWh55.m'),
 (12,'Emma','Harris','emma.harris@voyages.com','+44-20-7946-1202','British','1978-09-18','Agent','$2y$12$KTDruuNRXlcEtE.znxcu3.8df9L79QqEC/nOcXF9vLrHdOW1/6pM2'),
 (13,'William','Clark','william.clark@globetrip.com','+1-310-555-1303','American','1982-03-22','Agent','$2y$12$osO7BnDeMpxkK20amhes/OThOvnsLjTcAOCOyq9MhZ3Ctkjzna812'),
-(14,'Amelia','Lewis','amelia.lewis@luxtravel.com','+61-2-5550-1404','Australian','1975-11-07','Agent','$2y$12$Ow/dJ56TARMdIIcv.H/A7uDYsO0bIr/VNLVr1znaRVAxZprY2GyJm');
+(14,'Amelia','Lewis','amelia.lewis@luxtravel.com','+61-2-5550-1404','Australian','1975-11-07','Agent','$2y$12$Ow/dJ56TARMdIIcv.H/A7uDYsO0bIr/VNLVr1znaRVAxZprY2GyJm'),
+(15,'Test', 'Agent', 'agent@gmail.com', '+27-82-555-0000', 'South African', '1990-01-01', 'Agent','$2y$12$.aG/XLsupfxnIdLO1XWYQu6iYKSPm06knqdFtCL1vnn.gM7dyU63O');
 
 INSERT INTO `Traveller` VALUES
 (1,'Gold',12),
@@ -220,7 +221,8 @@ INSERT INTO `Agent` VALUES
 (11,'TravelCo Inc.',8.50,'Senior'),
 (12,'Voyages Ltd.',7.00,'Junior'),
 (13,'GlobeTrip Agency',9.00,'Senior'),
-(14,'Lux Travel Group',10.00,'Elite');
+(14,'Lux Travel Group',10.00,'Elite'),
+(15, 'Tripistry Test Agency', 8.50, 'Senior');
 
 INSERT INTO `Package` VALUES
 (9,11,'Cape Town Coastal Escape','A scenic beach and mountain getaway in Cape Town.',18500.00,'ZAR',25,'2026-06-12','2026-06-18','Cape Town','South Africa','Active'),
