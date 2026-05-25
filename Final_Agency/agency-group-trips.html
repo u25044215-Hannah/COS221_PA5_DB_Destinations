@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Group Trips — Tripistry Agency</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/agency.css" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <a href="../traveller ui/index.html" class="nav-logo">
+      <img src="images/logo.png" alt="Tripistry Logo" class="nav-logo-img">
+    </a>
+    <ul class="nav-links">
+      <li><a href="agency-dashboard.html">Dashboard</a></li>
+      <li><a href="agency-packages.html">Packages</a></li>
+      <li><a href="agency-group-trips.html" class="active">Group Trips</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span class="agency-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Agency Portal
+      </span>
+
+      /***************Must connect with Michaels upddate Login page that distinguishes between Traveller and Agent 
+      -> I added temporary Login Page called Simple_Agent_Login "Change Login page"*/
+
+      <a href="Simple_Agent_Login.html" class="btn btn-outline btn-sm" id="logout-btn">Log Out</a>
+      <!--<a href="../traveller ui/login.html" class="btn btn-outline btn-sm">Log Out</a>--> 
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="agency-hero">
+    <div class="container">
+      <span class="eyebrow">Group Travel</span>
+      <h1>Group Trip Departures</h1>
+      <p>Schedule and manage fixed-date group departures for your travel packages.</p>
+    </div>
+  </section>
+
+  <main class="container agency-main">
+
+    <!-- STATS ROW -->
+    <section class="agency-stats agency-stats--sm">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--blue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <span class="stat-big" id="stat-trips">—</span>
+          <span class="stat-label">Scheduled Trips</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--green">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <span class="stat-big" id="stat-enrolled">—</span>
+          <span class="stat-label">Total Enrolled</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOOLBAR -->
+    <div class="pkg-toolbar">
+      <div class="pkg-toolbar-left">
+        <div class="search-input-wrap" style="width:280px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="trip-search" placeholder="Search trips…" />
+        </div>
+      </div>
+      <button class="btn btn-primary" id="add-trip-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Schedule Group Trip
+      </button>
+    </div>
+
+    <!-- TRIPS GRID -->
+    <div class="trips-grid" id="trips-grid">
+      <p class="loading-text">Loading group trips…</p>
+    </div>
+
+  </main>
+
+  <!-- ═══════════ GROUP TRIP MODAL ═══════════ -->
+  <div class="modal-overlay" id="trip-modal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="trip-modal-title">Schedule Group Trip</h2>
+        <button class="modal-close" id="close-trip-modal">✕</button>
+      </div>
+
+      <form class="modal-form" id="trip-form" novalidate>
+        <input type="hidden" id="trip-edit-id" />
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Trip Name <span class="req">*</span></label>
+            <!-- Backend field: groupName -->
+            <input type="text" id="trip-name" placeholder="e.g. Bali Summer Group 2025" required />
+            <span class="field-error" id="err-trip-name"></span>
+          </div>
+          <div class="form-group">
+            <label>Base Package <span class="req">*</span></label>
+            <!-- Backend field: packageID -->
+            <select id="trip-package" required>
+              <option value="">Select package…</option>
+            </select>
+            <span class="field-error" id="err-trip-package"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Current Members</label>
+          <input type="number" id="trip-members" placeholder="0" min="0" value="0" />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="cancel-trip-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Group Trip</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════ ENROLLEES MODAL ═══════════ -->
+  <div class="modal-overlay" id="enrollees-modal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="enrollees-title">Enrolled Travellers</h2>
+        <button class="modal-close" id="close-enrollees-modal">✕</button>
+      </div>
+      <div style="padding:0 24px 24px;">
+        <div id="enrollees-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/agency.js" defer></script>
+  <script>
+    /* ─────────────────────────────────────────────
+       agency-group-trips.html — live backend wiring
+       All data operations go through agency.php
+    ───────────────────────────────────────────── */
+
+    let tripsCache = [];
+
+    /*   Close modals   */
+    function closeTripsModals() {
+      document.getElementById("trip-modal").style.display      = "none";
+      document.getElementById("enrollees-modal").style.display = "none";
+    }
+
+    /*   Render trips grid from tripsCache   */
+    function renderTrips() {
+      const search = document.getElementById("trip-search").value.toLowerCase();
+      const grid   = document.getElementById("trips-grid");
+
+      const filtered = tripsCache.filter(t =>
+        !search ||
+        (t.groupName || "").toLowerCase().includes(search) ||
+        (t.title || "").toLowerCase().includes(search) ||
+        (t.destinationCity || "").toLowerCase().includes(search)
+      );
+
+      // Update stats
+      document.getElementById("stat-trips").textContent    = tripsCache.length;
+      document.getElementById("stat-enrolled").textContent = tripsCache.reduce((s, t) => s + (t.currentMembers || 0), 0);
+
+      if (!filtered.length) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <p>No group trips found.</p>
+            <button class="btn btn-primary" onclick="openAddTripModal()">+ Schedule Trip</button>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(trip => `
+        <div class="trip-card">
+          <div class="trip-card-top">
+            <div>
+              <h3>${trip.groupName}</h3>
+              <small>${trip.title || ("Package #" + trip.packageID)} — ${trip.destinationCity || ""} ${trip.destinationCountry ? ", " + trip.destinationCountry : ""}</small>
+            </div>
+          </div>
+          <div class="trip-info">
+            <p><strong>Members:</strong> ${trip.currentMembers}</p>
+          </div>
+          <div class="trip-actions">
+            <button class="btn btn-sm" style="background:var(--sky-light);color:var(--dark);"
+              onclick="openEditTripModal(${trip.groupTripID})">✏️ Edit</button>
+            <button class="btn btn-sm" style="background:#fde8e8;color:#c0392b;"
+              onclick="confirmDeleteTrip(${trip.groupTripID})">🗑️ Delete</button>
+          </div>
+        </div>`).join("");
+    }
+
+    /*   Load group trips from backend   */
+    async function loadGroupTripsPage() {
+      const grid = document.getElementById("trips-grid");
+      grid.innerHTML = "<p class='loading-text'>Loading group trips…</p>";
+
+      const result = await apiRequest(AGENCY_CONTROLLER, "list_group_trips");
+
+      if (!result.success) {
+        grid.innerHTML = `<p class="error-text">${result.message || "Could not load group trips."}</p>`;
+        return;
+      }
+
+      tripsCache = result.data || [];
+      renderTrips();
+    }
+
+    /*   Open add modal   */
+    function openAddTripModal() {
+      document.getElementById("trip-modal-title").textContent = "Schedule Group Trip";
+      document.getElementById("trip-edit-id").value = "";
+      document.getElementById("trip-form").reset();
+      document.getElementById("trip-members").value = "0";
+      document.getElementById("err-trip-name").textContent    = "";
+      document.getElementById("err-trip-package").textContent = "";
+      document.getElementById("trip-modal").style.display = "flex";
+    }
+
+    /*   Open edit modal   */
+    function openEditTripModal(groupTripID) {
+      const t = tripsCache.find(x => x.groupTripID === groupTripID);
+      if (!t) return;
+
+      document.getElementById("trip-modal-title").textContent = "Edit Group Trip";
+      document.getElementById("trip-edit-id").value           = t.groupTripID;
+      document.getElementById("trip-name").value              = t.groupName || "";
+      document.getElementById("trip-package").value           = t.packageID || "";
+      document.getElementById("trip-members").value           = t.currentMembers || 0;
+      document.getElementById("err-trip-name").textContent    = "";
+      document.getElementById("err-trip-package").textContent = "";
+      document.getElementById("trip-modal").style.display = "flex";
+    }
+
+    /*   Form submit: create or update   */
+    document.getElementById("trip-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const groupName = document.getElementById("trip-name").value.trim();
+      const packageID = document.getElementById("trip-package").value;
+      const currentMembers = parseInt(document.getElementById("trip-members").value) || 0;
+
+      let valid = true;
+      document.getElementById("err-trip-name").textContent    = "";
+      document.getElementById("err-trip-package").textContent = "";
+
+      if (!groupName) { document.getElementById("err-trip-name").textContent = "Trip name is required."; valid = false; }
+      if (!packageID) { document.getElementById("err-trip-package").textContent = "Please select a package."; valid = false; }
+      if (!valid) return;
+
+      const payload = { groupName, packageID: parseInt(packageID), currentMembers };
+      const editID  = document.getElementById("trip-edit-id").value;
+      let result;
+
+      if (editID) {
+        payload.groupTripID = parseInt(editID);
+        result = await apiRequest(AGENCY_CONTROLLER, "update_group_trip", "POST", payload, true);
+      } else {
+        result = await apiRequest(AGENCY_CONTROLLER, "create_group_trip", "POST", payload, true);
+      }
+
+      if (result.success) {
+        showMessage(editID ? "Group trip updated." : "Group trip created.");
+        closeTripsModals();
+        loadGroupTripsPage();
+      } else {
+        showMessage(result.message || "Could not save group trip.", "error");
+      }
+    });
+
+    /*   Delete with confirmation   */
+    async function confirmDeleteTrip(groupTripID) {
+      const t = tripsCache.find(x => x.groupTripID === groupTripID);
+      if (!confirm(`Delete group trip "${t ? t.groupName : groupTripID}"? This cannot be undone.`)) return;
+
+      const result = await apiRequest(
+        AGENCY_CONTROLLER,
+        "delete_group_trip",
+        "POST",
+        { groupTripID },
+        true
+      );
+
+      if (result.success) {
+        showMessage("Group trip deleted.");
+        loadGroupTripsPage();
+      } else {
+        showMessage(result.message || "Could not delete group trip.", "error");
+      }
+    }
+
+    /*   Event bindings   */
+    document.getElementById("add-trip-btn").addEventListener("click", openAddTripModal);
+    document.getElementById("close-trip-modal").addEventListener("click",    closeTripsModals);
+    document.getElementById("cancel-trip-modal").addEventListener("click",   closeTripsModals);
+    document.getElementById("close-enrollees-modal").addEventListener("click", closeTripsModals);
+    document.getElementById("trip-modal").addEventListener("click",    e => { if (e.target === e.currentTarget) closeTripsModals(); });
+    document.getElementById("enrollees-modal").addEventListener("click", e => { if (e.target === e.currentTarget) closeTripsModals(); });
+    document.getElementById("trip-search").addEventListener("input", renderTrips);
+
+    /*   Initial load   */
+    document.addEventListener("DOMContentLoaded", function() {
+      loadCsrfToken(AGENCY_CONTROLLER).then(() => {
+        loadPackageOptions();   // populate package dropdown (from agency.js)
+        loadGroupTripsPage();
+      });
+    });
+  </script>
+
+</body>
+</html>
