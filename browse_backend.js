@@ -94,62 +94,59 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   function populateDestinationDropdown(destinations) {
-    clearSelect(destinationSelect, "All destinations");
-
+    clearSelect(destinationSelect, "All Destinations");
+  
     destinations.forEach(dest => {
-      const city = dest.destinationCity || dest.city || dest.City || "";
-      const country = dest.destinationCountry || dest.country || dest.Country || "";
-      const id = dest.destinationID || dest.DestinationID || dest.id || "";
-
+      const city = dest.destinationCity || "";
+      const country = dest.destinationCountry || "";
+  
+      if (!city && !country) return;
+  
       const label = [city, country].filter(Boolean).join(", ");
-      if (!label) return;
-
+  
       const option = document.createElement("option");
-      option.value = id || label;
+  
+      // This value must match what we filter against later
+      option.value = label.toLowerCase();
+  
       option.textContent = label;
+  
       destinationSelect.appendChild(option);
     });
   }
 
   function populateAgencyDropdown(agencies) {
-    clearSelect(agencySelect, "All agencies");
-
+    clearSelect(agencySelect, "All Agencies");
+  
     agencies.forEach(agency => {
-      const id = agency.agentID || agency.agencyID || agency.AgentID || agency.id || "";
-      const name =
-        agency.agencyName ||
-        agency.companyName ||
-        agency.CompanyName ||
-        agency.name ||
-        agency.email ||
-        "";
-
+      const name = agency.agencyName || agency.companyName || "";
+  
       if (!name) return;
-
+  
       const option = document.createElement("option");
-      option.value = id || name;
+  
+      // Use agency name instead of ID because package cards filter by agencyName
+      option.value = name.toLowerCase();
+  
       option.textContent = name;
+  
       agencySelect.appendChild(option);
     });
   }
 
   function populateAccommodationDropdown(types) {
-    clearSelect(accommodationSelect, "All accommodation types");
-
+    clearSelect(accommodationSelect, "All Accommodation");
+  
     types.forEach(item => {
-      const type =
-        item.propertyType ||
-        item.accommodationType ||
-        item.type ||
-        item.PropertyType ||
-        item.AccommodationType ||
-        item;
-
+      const type = item.propertyType || item.accommodationType || item;
+  
       if (!type) return;
-
+  
       const option = document.createElement("option");
-      option.value = type;
+  
+      option.value = type.toLowerCase();
       option.textContent = type;
+  
       accommodationSelect.appendChild(option);
     });
   }
