@@ -620,36 +620,209 @@ a[href*="packages"] {
   color: inherit !important;
 }
 
-/* More interesting traveller background */
+/* Dramatic traveller background */
 body {
   background:
-    radial-gradient(circle at 12% 18%, rgba(79, 127, 69, 0.18), transparent 28%),
-    radial-gradient(circle at 85% 12%, rgba(0, 53, 69, 0.14), transparent 30%),
-    radial-gradient(circle at 70% 85%, rgba(123, 176, 170, 0.18), transparent 32%),
-    linear-gradient(135deg, #f8fbf8 0%, #eef5f1 45%, #f7faf8 100%) !important;
+    radial-gradient(circle at 10% 15%, rgba(79, 127, 69, 0.42), transparent 26%),
+    radial-gradient(circle at 90% 10%, rgba(0, 53, 69, 0.45), transparent 30%),
+    radial-gradient(circle at 80% 85%, rgba(78, 168, 172, 0.35), transparent 32%),
+    linear-gradient(135deg, #eaf4ea 0%, #dbeee8 40%, #f8f5e9 100%) !important;
   background-attachment: fixed;
 }
 
-/* Soft glass effect for main cards */
+/* Travel-style decorative blobs */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, transparent 0 45%, rgba(255,255,255,0.25) 45% 47%, transparent 47%),
+    radial-gradient(circle at 20% 75%, rgba(255,255,255,0.35), transparent 18%),
+    radial-gradient(circle at 75% 35%, rgba(255,255,255,0.25), transparent 16%);
+  z-index: -1;
+}
+
+/* Make cards pop more */
 .filters-sidebar,
 .package-card,
 .compare-card,
 .booking-card,
 .review-card,
 .stat-card {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.88) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(0, 53, 69, 0.1) !important;
+  box-shadow: 0 22px 55px rgba(0, 53, 69, 0.16) !important;
+  backdrop-filter: blur(14px);
 }
 
-/* Optional subtle pattern */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(0, 53, 69, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 53, 69, 0.025) 1px, transparent 1px);
-  background-size: 42px 42px;
-  z-index: -1;
+/* Stronger section separation */
+section,
+.page-section,
+.browse-layout,
+.bookings-section {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Pretty package cards ===== */
+
+.package-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid rgba(0, 53, 69, 0.1) !important;
+  box-shadow: 0 24px 60px rgba(0, 53, 69, 0.16) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.package-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 32px 80px rgba(0, 53, 69, 0.24) !important;
+}
+
+.package-card img,
+.package-card-image,
+.package-img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 24px 24px 0 0;
+}
+
+.package-card-content,
+.package-content,
+.card-content {
+  padding: 24px !important;
+}
+
+.package-card h3,
+.package-card-title,
+.package-title {
+  font-size: 1.35rem;
+  line-height: 1.15;
+  margin-bottom: 10px;
+  color: #003545 !important;
+}
+
+.package-card p,
+.package-description {
+  color: #53676d !important;
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.package-card .price,
+.package-price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #2f6f4e !important;
+}
+
+.package-card .badge,
+.package-badge,
+.status-badge {
+  background: #eaf5ec !important;
+  color: #2f6f4e !important;
+  border: 1px solid rgba(47, 111, 78, 0.18);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.package-card .btn,
+.package-card button,
+.package-card a.btn {
+  width: 100%;
+  margin-top: 16px;
+  background: linear-gradient(135deg, #4f7f45, #2f6f4e) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.package-card .btn:hover,
+.package-card button:hover,
+.package-card a.btn:hover {
+  background: linear-gradient(135deg, #2f6f4e, #003545) !important;
+}
+
+/* ===== Top-rated agencies stats bar ===== */
+
+.agency-stats,
+.stats-bar,
+.stats-section {
+  background: rgba(255, 255, 255, 0.92) !important;
+  margin: 48px auto 72px;
+  padding: 52px 40px !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.stats-grid,
+.agency-stats-grid,
+.stats-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  gap: 0;
+}
+
+.stat-item,
+.stat-card,
+.stats-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-right: 1px solid rgba(0, 53, 69, 0.14) !important;
+  border-radius: 0 !important;
+  text-align: center;
+  padding: 0 32px !important;
+}
+
+.stat-item:last-child,
+.stat-card:last-child,
+.stats-card:last-child {
+  border-right: none !important;
+}
+
+.stat-number,
+.stat-big,
+.stats-number {
+  display: block;
+  font-family: Georgia, serif;
+  font-size: 2.7rem !important;
+  font-weight: 800;
+  line-height: 1;
+  color: #003545 !important;
+  margin-bottom: 12px;
+}
+
+.stat-label,
+.stats-label {
+  display: block;
+  font-size: 0.9rem !important;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #53676d !important;
+  line-height: 1.05;
+}
+
+@media (max-width: 900px) {
+  .stats-grid,
+  .agency-stats-grid,
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 32px;
+  }
+
+  .stat-item,
+  .stat-card,
+  .stats-card {
+    border-right: none !important;
+  }
 }
