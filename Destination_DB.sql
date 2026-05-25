@@ -893,3 +893,76 @@ VALUES
 (15, 'Kruger Safari Adventure', 'A wildlife safari package created for agent ID 15.', 22000.00, 'ZAR', 18, '2026-08-05', '2026-08-11', 'Kruger National Park', 'South Africa', 'Active'),
 (15, 'Garden Route Road Trip', 'A scenic travel package along the Garden Route.', 19500.00, 'ZAR', 16, '2026-08-20', '2026-08-27', 'Knysna', 'South Africa', 'Active'),
 (15, 'Johannesburg City Experience', 'A city and culture package for local travellers.', 12000.00, 'ZAR', 30, '2026-09-01', '2026-09-05', 'Johannesburg', 'South Africa', 'Active');
+
+INSERT INTO `GroupTrip` (`groupName`, `currentMembers`, `packageID`)
+SELECT CONCAT(title, ' Group'), 6, packageID
+FROM `Package`
+WHERE agentID = 15;
+
+INSERT INTO `Booking` 
+(`userID`, `agentID`, `packageID`, `groupTripID`, `numGuests`, `totalPrice`, `status`, `bookedAt`)
+SELECT 
+  1,
+  15,
+  p.packageID,
+  gt.groupTripID,
+  2,
+  p.pricePerPerson * 2,
+  'Confirmed',
+  NOW()
+FROM `Package` p
+JOIN `GroupTrip` gt ON gt.packageID = p.packageID
+WHERE p.agentID = 15;
+
+INSERT INTO `Booking` 
+(`userID`, `agentID`, `packageID`, `groupTripID`, `numGuests`, `totalPrice`, `status`, `bookedAt`)
+SELECT 
+  2,
+  15,
+  p.packageID,
+  gt.groupTripID,
+  1,
+  p.pricePerPerson,
+  'Pending',
+  NOW()
+FROM `Package` p
+JOIN `GroupTrip` gt ON gt.packageID = p.packageID
+WHERE p.agentID = 15;
+
+INSERT INTO `GroupMembership`
+(`userID`, `groupTripID`, `role`, `joinedAt`, `paymentStatus`)
+SELECT 1, gt.groupTripID, 'Leader', NOW(), 'Paid'
+FROM `GroupTrip` gt
+JOIN `Package` p ON gt.packageID = p.packageID
+WHERE p.agentID = 15;
+
+INSERT INTO `GroupMembership`
+(`userID`, `groupTripID`, `role`, `joinedAt`, `paymentStatus`)
+SELECT 2, gt.groupTripID, 'Member', NOW(), 'Pending'
+FROM `GroupTrip` gt
+JOIN `Package` p ON gt.packageID = p.packageID
+WHERE p.agentID = 15;
+
+INSERT INTO `Review`
+(`userID`, `packageID`, `comment`, `overallScore`, `cleanlinessScore`, `serviceScore`)
+SELECT 
+  1,
+  packageID,
+  CONCAT('Excellent experience on ', title, '. Everything was well organised.'),
+  5,
+  5,
+  5
+FROM `Package`
+WHERE agentID = 15;
+
+INSERT INTO `Review`
+(`userID`, `packageID`, `comment`, `overallScore`, `cleanlinessScore`, `serviceScore`)
+SELECT 
+  2,
+  packageID,
+  CONCAT('Good package for ', destinationCity, ', but the schedule could be improved.'),
+  4,
+  4,
+  4
+FROM `Package`
+WHERE agentID = 15;
