@@ -1,5 +1,5 @@
--- Add Flight component support to an existing Tripistry database
--- Run this if you do NOT want to re-import the full Destination_DB.sql dump.
+-- Add Flight component to an existing Tripistry database
+-- to not re-import the full Destination_DB.sql dump.
 
 ALTER TABLE `PackageComponent`
   MODIFY `componentType` ENUM('Accommodation','Restaurant','Excursion','Flight') NOT NULL;
