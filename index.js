@@ -44,8 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
     loadPopularDestinations();
   });
   
-  // existing functions above...
-  
   async function loadPopularDestinations() {
     const grid = document.getElementById("destinations-grid");
     if (!grid) return;
@@ -88,5 +86,41 @@ document.addEventListener("DOMContentLoaded", function () {
   
     } catch (error) {
       console.error("Could not load destinations:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    loadHomeStats();
+  });
+  
+  async function loadHomeStats() {
+    try {
+      const response = await fetch("api.php?action=getHomeStats");
+      const json = await response.json();
+  
+      if (!json.success) {
+        console.error(json.message);
+        return;
+      }
+  
+      const stats = json.data;
+  
+      document.getElementById("stat-packages").textContent =
+        Number(stats.totalPackages || 0).toLocaleString();
+  
+      document.getElementById("stat-agencies").textContent =
+        Number(stats.totalAgencies || 0).toLocaleString();
+  
+      document.getElementById("stat-reviews").textContent =
+        Number(stats.totalReviews || 0).toLocaleString();
+  
+      document.getElementById("stat-rating").textContent =
+        Number(stats.averageRating || 0).toFixed(1) + " ★";
+  
+      document.getElementById("stat-destinations").textContent =
+        Number(stats.totalDestinations || 0).toLocaleString();
+  
+    } catch (error) {
+      console.error("Could not load homepage stats:", error);
     }
   }
