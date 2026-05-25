@@ -1,5 +1,5 @@
 // browse_backend.js
-// Connects browse.html to the backend and makes filtering/sorting work.
+// Pulls package data + dropdown filter data from the database through api.php
 
 document.addEventListener("DOMContentLoaded", async function () {
   const grid = document.getElementById("browse-grid");
@@ -39,6 +39,172 @@ document.addEventListener("DOMContentLoaded", async function () {
     return String(value || "").toLowerCase().trim();
   }
 
+  async function fetchJSON(url) {
+    const response = await fetch(url);
+
+    const text = await response.text();
+
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      console.error("Backend returned non-JSON:", text);
+      throw new Error("Backend did not return valid JSON.");
+    }
+  }
+
+  function unwrapData(json) {
+    if (Array.isArray(json)) return json;
+    if (json.data && Array.isArray(json.data)) return json.data;
+    if (json.packages && Array.isArray(json.packages)) return json.packages;
+    if (json.results && Array.isArray(json.results)) return json.results;
+    return [];
+  }
+
+  async function loadPackagesFromBackend() {
+    const json = await fetchJSON("api.php?action=getPackages");
+    return unwrapData(json);
+  }
+
+  async function loadBrowseFilters() {
+    try {
+      const json = await fetchJSON("api.php?action=getBrowseFilters");
+
+      const data = json.data || json;
+
+      populateDestinationDropdown(data.destinations || []);
+      populateAgencyDropdown(data.agencies || []);
+      populateAccommodationDropdown(data.accommodationTypes || []);
+    } catch (err) {
+      console.error("Filter loading failed:", err);
+
+      // Backup: build dropdowns from the package data if getBrowseFilters does not exist yet.
+      populateDropdownsFromPackages();
+    }
+  }
+
+  function clearSelect(select, defaultText) {
+    if (!select) return;
+
+    select.innerHTML = "";
+
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = defaultText;
+    select.appendChild(option);
+  }
+
+  function populateDestinationDropdown(destinations) {
+    clearSelect(destinationSelect, "All destinations");
+
+    destinations.forEach(dest => {
+      const city = dest.destinationCity || dest.city || dest.City || "";
+      const country = dest.destinationCountry || dest.country || dest.Country || "";
+      const id = dest.destinationID || dest.DestinationID || dest.id || "";
+
+      const label = [city, country].filter(Boolean).join(", ");
+      if (!label) return;
+
+      const option = document.createElement("option");
+      option.value = id || label;
+      option.textContent = label;
+      destinationSelect.appendChild(option);
+    });
+  }
+
+  function populateAgencyDropdown(agencies) {
+    clearSelect(agencySelect, "All agencies");
+
+    agencies.forEach(agency => {
+      const id = agency.agentID || agency.agencyID || agency.AgentID || agency.id || "";
+      const name =
+        agency.agencyName ||
+        agency.companyName ||
+        agency.CompanyName ||
+        agency.name ||
+        agency.email ||
+        "";
+
+      if (!name) return;
+
+      const option = document.createElement("option");
+      option.value = id || name;
+      option.textContent = name;
+      agencySelect.appendChild(option);
+    });
+  }
+
+  function populateAccommodationDropdown(types) {
+    clearSelect(accommodationSelect, "All accommodation types");
+
+    types.forEach(item => {
+      const type =
+        item.propertyType ||
+        item.accommodationType ||
+        item.type ||
+        item.PropertyType ||
+        item.AccommodationType ||
+        item;
+
+      if (!type) return;
+
+      const option = document.createElement("option");
+      option.value = type;
+      option.textContent = type;
+      accommodationSelect.appendChild(option);
+    });
+  }
+
+  function populateDropdownsFromPackages() {
+    const destinations = [];
+    const agencies = [];
+    const accommodationTypes = [];
+
+    allPackages.forEach(pkg => {
+      const city = pkg.destinationCity || pkg.city;
+      const country = pkg.destinationCountry || pkg.country;
+
+      if (city || country) {
+        destinations.push({
+          destinationID: pkg.destinationID,
+          destinationCity: city,
+          destinationCountry: country
+        });
+      }
+
+      if (pkg.agencyName || pkg.companyName || pkg.agentID || pkg.agencyID) {
+        agencies.push({
+          agentID: pkg.agentID || pkg.agencyID,
+          agencyName: pkg.agencyName || pkg.companyName
+        });
+      }
+
+      if (pkg.propertyType || pkg.accommodationType) {
+        accommodationTypes.push(pkg.propertyType || pkg.accommodationType);
+      }
+    });
+
+    populateDestinationDropdown(uniqueByLabel(destinations, d =>
+      `${d.destinationCity || ""}-${d.destinationCountry || ""}`
+    ));
+
+    populateAgencyDropdown(uniqueByLabel(agencies, a =>
+      `${a.agentID || ""}-${a.agencyName || ""}`
+    ));
+
+    populateAccommodationDropdown([...new Set(accommodationTypes)]);
+  }
+
+  function uniqueByLabel(items, getKey) {
+    const seen = new Set();
+
+    return items.filter(item => {
+      const key = normalise(getKey(item));
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
   function getPackagePrice(pkg) {
     return Number(pkg.pricePerPerson || pkg.price || pkg.packagePrice || 0);
   }
@@ -63,13 +229,16 @@ document.addEventListener("DOMContentLoaded", async function () {
   function packageText(pkg) {
     return normalise([
       pkg.title,
+      pkg.packageName,
       pkg.description,
       pkg.destinationCity,
       pkg.destinationCountry,
       pkg.city,
       pkg.country,
       pkg.agencyName,
-      pkg.companyName
+      pkg.companyName,
+      pkg.propertyType,
+      pkg.accommodationType
     ].join(" "));
   }
 
@@ -93,21 +262,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     const text = packageText(pkg);
 
     if (type === "accommodation") {
-      return Boolean(pkg.accommodation || pkg.accommodationName || pkg.propertyType) ||
-        text.includes("hotel") ||
-        text.includes("resort") ||
-        text.includes("accommodation");
+      return Boolean(pkg.accommodationID || pkg.accommodationName || pkg.propertyType || pkg.accommodationType);
     }
 
     if (type === "restaurant") {
-      return Boolean(pkg.restaurant || pkg.restaurantName || pkg.cuisineType) ||
-        text.includes("restaurant") ||
-        text.includes("dining") ||
-        text.includes("food");
+      return Boolean(pkg.restaurantID || pkg.restaurantName || pkg.cuisineType) ||
+        text.includes("restaurant");
     }
 
     if (type === "excursion") {
-      return Boolean(pkg.excursion || pkg.excursionName || pkg.activityName) ||
+      return Boolean(pkg.excursionID || pkg.excursionName || pkg.activityName) ||
         text.includes("tour") ||
         text.includes("excursion") ||
         text.includes("activity");
@@ -137,12 +301,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const matchesDestination =
         !destinationValue ||
+        normalise(pkg.destinationID) === destinationValue ||
         normalise(pkg.destinationCity).includes(destinationValue) ||
         normalise(pkg.destinationCountry).includes(destinationValue) ||
         text.includes(destinationValue);
 
       const matchesPrice = !maxPrice || price <= maxPrice;
-
       const matchesRating = rating >= minRating;
 
       const matchesAgency =
@@ -160,13 +324,19 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const matchesDuration = packageMatchesDuration(pkg);
 
-      const matchesGroup = !groupOnly || !groupOnly.checked || Boolean(pkg.groupTripID || pkg.groupName || pkg.isGroupTrip);
+      const matchesGroup =
+        !groupOnly ||
+        !groupOnly.checked ||
+        Boolean(pkg.groupTripID || pkg.groupName || pkg.isGroupTrip || Number(pkg.maxGroupSize) > 1);
 
-      const matchesFlight = !flightIncluded || !flightIncluded.checked || packageHasComponent(pkg, "flight");
+      const matchesFlight =
+        !flightIncluded || !flightIncluded.checked || packageHasComponent(pkg, "flight");
 
-      const matchesExcursions = !excursionsIncluded || !excursionsIncluded.checked || packageHasComponent(pkg, "excursion");
+      const matchesExcursions =
+        !excursionsIncluded || !excursionsIncluded.checked || packageHasComponent(pkg, "excursion");
 
-      const matchesRestaurants = !restaurantsIncluded || !restaurantsIncluded.checked || packageHasComponent(pkg, "restaurant");
+      const matchesRestaurants =
+        !restaurantsIncluded || !restaurantsIncluded.checked || packageHasComponent(pkg, "restaurant");
 
       const matchesAccommodationIncluded =
         !accommodationIncluded ||
@@ -190,7 +360,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     filtered = sortPackages(filtered);
-
     renderPackages(filtered);
   }
 
@@ -198,21 +367,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     const sortValue = sortSelect ? sortSelect.value : "";
 
     return [...packages].sort((a, b) => {
-      if (sortValue === "price-asc") {
-        return getPackagePrice(a) - getPackagePrice(b);
-      }
-
-      if (sortValue === "price-desc") {
-        return getPackagePrice(b) - getPackagePrice(a);
-      }
-
-      if (sortValue === "duration-asc") {
-        return getPackageDuration(a) - getPackageDuration(b);
-      }
-
-      if (sortValue === "newest") {
-        return new Date(b.startDate || 0) - new Date(a.startDate || 0);
-      }
+      if (sortValue === "price-asc") return getPackagePrice(a) - getPackagePrice(b);
+      if (sortValue === "price-desc") return getPackagePrice(b) - getPackagePrice(a);
+      if (sortValue === "duration-asc") return getPackageDuration(a) - getPackageDuration(b);
+      if (sortValue === "newest") return new Date(b.startDate || 0) - new Date(a.startDate || 0);
 
       return getPackageRating(b) - getPackageRating(a);
     });
@@ -231,11 +389,64 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (total) total.textContent = packages.length;
   }
 
+  function renderPackageCard(pkg) {
+    const id = pkg.packageID || pkg.id || "";
+    const title = pkg.title || pkg.packageName || "Travel Package";
+    const destination = [pkg.destinationCity || pkg.city, pkg.destinationCountry || pkg.country]
+      .filter(Boolean)
+      .join(", ");
+
+    const price = getPackagePrice(pkg);
+    const rating = getPackageRating(pkg);
+    const duration = getPackageDuration(pkg);
+    const agency = pkg.agencyName || pkg.companyName || "Travel Agency";
+    const image = pkg.imageURL || pkg.image || "images/package-placeholder.jpg";
+
+    return `
+      <article class="package-card">
+        <img src="${image}" alt="${title}" class="package-img">
+
+        <div class="package-content">
+          <h3>${title}</h3>
+          <p class="package-destination">${destination}</p>
+          <p class="package-agency">${agency}</p>
+          <p>${pkg.description || ""}</p>
+
+          <div class="package-meta">
+            <span>R ${price.toLocaleString()}</span>
+            <span>${duration ? duration + " days" : ""}</span>
+            <span>${rating ? rating.toFixed(1) + " ★" : "No rating"}</span>
+          </div>
+
+          <div class="package-actions">
+            <a href="package-details.html?packageID=${id}" class="btn btn-primary">View Details</a>
+            <button type="button" class="btn btn-secondary compare-add" data-id="${id}">
+              Add to Compare
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
   async function loadInitialPackages() {
     grid.innerHTML = "<p>Loading packages...</p>";
 
     try {
-      allPackages = await loadPackagesFromBackend({});
+      allPackages = await loadPackagesFromBackend();
+
+      await loadBrowseFilters();
+
+      if (priceInput && allPackages.length > 0) {
+        const max = Math.max(...allPackages.map(getPackagePrice));
+        priceInput.max = max;
+        priceInput.value = max;
+
+        if (priceDisplay) {
+          priceDisplay.textContent = `R ${Number(max).toLocaleString()}`;
+        }
+      }
+
       applyFilters();
     } catch (err) {
       console.error(err);
@@ -273,20 +484,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   });
 
-  if (applyBtn) {
-    applyBtn.addEventListener("click", applyFilters);
-  }
+  if (applyBtn) applyBtn.addEventListener("click", applyFilters);
 
   if (clearBtn) {
     clearBtn.addEventListener("click", function () {
       if (searchInput) searchInput.value = "";
       if (destinationSelect) destinationSelect.value = "";
+      if (agencySelect) agencySelect.value = "";
+      if (accommodationSelect) accommodationSelect.value = "";
+
       if (priceInput) priceInput.value = priceInput.max;
       if (priceDisplay && priceInput) {
         priceDisplay.textContent = `R ${Number(priceInput.value).toLocaleString()}`;
       }
-      if (agencySelect) agencySelect.value = "";
-      if (accommodationSelect) accommodationSelect.value = "";
 
       document.querySelectorAll('input[name="duration"]').forEach(input => {
         input.checked = false;
@@ -298,6 +508,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       minRating = 0;
       ratingButtons.forEach(btn => btn.classList.remove("active"));
+
       const allRatingBtn = document.querySelector('.rating-filter-btn[data-rating="0"]');
       if (allRatingBtn) allRatingBtn.classList.add("active");
 
