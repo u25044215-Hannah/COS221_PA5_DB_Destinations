@@ -220,6 +220,36 @@ function getAgencyStats($conn) {
     jsonResponse(true, "Agency stats loaded successfully.", $stats);
 }
 
+function getPopularDestinations($conn) {
+    $sql = "
+        SELECT
+            destinationCity,
+            destinationCountry,
+            COUNT(packageID) AS packageCount
+        FROM Package
+        WHERE destinationCity IS NOT NULL
+        AND destinationCity <> ''
+        AND status <> 'Deleted'
+        GROUP BY destinationCity, destinationCountry
+        ORDER BY packageCount DESC
+        LIMIT 3
+    ";
+
+    $result = $conn->query($sql);
+
+    if (!$result) {
+        jsonResponse(false, "Could not load destinations: " . $conn->error, []);
+    }
+
+    $destinations = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $destinations[] = $row;
+    }
+
+    jsonResponse(true, "Destinations loaded successfully.", $destinations);
+}
+
 $action = $_GET["action"] ?? "";
 
 switch ($action) {
@@ -233,6 +263,10 @@ switch ($action) {
     
     case "getAgencyStats":
         getAgencyStats($conn);
+        break;
+
+    case "getPopularDestinations":
+        getPopularDestinations($conn);
         break;
 
     default:
