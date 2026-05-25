@@ -6,7 +6,7 @@
 const PACKAGE_CONTROLLER = "../packages.php";
 const AGENCY_CONTROLLER  = "../agency.php";
 const LOGOUT_CONTROLLER  = "../logout.php";
-const LOGIN_PAGE         = "../login.html";
+const LOGIN_PAGE         = "../traveller ui/login.html";
 
 let csrfTokens = {};
 let _packages = [];
@@ -529,22 +529,53 @@ async function deleteGroupTrip(groupTripID) {
 ========================= */
 
 async function loadDashboardStats() {
-  const packageCount = document.getElementById("packageCount");
-  const groupTripCount = document.getElementById("groupTripCount");
-
-  if (!packageCount && !groupTripCount) return;
-
-  const [packageResult, tripResult] = await Promise.all([
+  const [pkgRes, bookingRes, tripRes, statsRes] = await Promise.all([
     apiRequest(PACKAGE_CONTROLLER, "list_packages"),
-    apiRequest(AGENCY_CONTROLLER, "list_group_trips")
+    apiRequest(AGENCY_CONTROLLER, "list_bookings"),
+    apiRequest(AGENCY_CONTROLLER, "list_group_trips"),
+    apiRequest(AGENCY_CONTROLLER, "get_dashboard_stats")
   ]);
 
-  if (packageCount && packageResult.success) {
-    packageCount.textContent = (packageResult.data || []).length;
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
+  if (pkgRes.success) {
+    setText("packageCount", (pkgRes.data || []).length);
   }
 
-  if (groupTripCount && tripResult.success) {
-    groupTripCount.textContent = (tripResult.data || []).length;
+  if (bookingRes.success) {
+    const bookings = bookingRes.data || [];
+    setText("bookingCount", bookings.length);
+    setText(
+      "stat-pending",
+      bookings.filter(b => (b.status || "").toLowerCase() === "pending").length
+    );
+  }
+
+  if (tripRes.success) {
+    setText("groupTripCount", (tripRes.data || []).length);
+  }
+
+  if (statsRes.success && statsRes.data) {
+    const revenue = parseFloat(statsRes.data.totalRevenue || 0);
+    const rating = parseFloat(statsRes.data.avgRating || 0);
+
+    setText(
+      "stat-revenue",
+      revenue > 0
+        ? "R " + revenue.toLocaleString("en-ZA", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })
+        : "—"
+    );
+
+    setText(
+      "stat-rating",
+      rating > 0 ? rating.toFixed(1) + " ★" : "—"
+    );
   }
 }
 
@@ -571,6 +602,33 @@ async function loadPackagesSummary() {
         `;
       }).join("")
     : "<li>No packages yet.</li>";
+}
+
+async function loadBookings() {
+  const tbody = document.getElementById("bookings-tbody");
+  if (!tbody) return;
+
+  const result = await apiRequest(AGENCY_CONTROLLER, "list_bookings");
+
+  if (!result.success) {
+    showMessage(result.message || "Could not load bookings.", "error");
+    return;
+  }
+
+  const bookings = result.data || [];
+
+  tbody.innerHTML = bookings.length
+    ? bookings.map(b => `
+        <tr>
+          <td>${b.bookingID}</td>
+          <td>${b.firstName || ""} ${b.lastName || ""}</td>
+          <td>${b.packageTitle || ""}</td>
+          <td>${b.bookedAt || ""}</td>
+          <td>${b.currency || "ZAR"} ${b.totalPrice || "0.00"}</td>
+          <td><span class="status-badge status-badge--${(b.status || "").toLowerCase()}">${b.status || ""}</span></td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="6" style="text-align:center;">No bookings yet.</td></tr>`;
 }
 
 /* =========================
@@ -650,6 +708,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   setupPackagePage();
   setupOtherForms();
 
+  loadDashboardStats();
+  loadBookings();
+  loadReviewsSnapshot();
   loadPackageOptions();
   loadAgencyPackages();
   loadGroupTrips();
