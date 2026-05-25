@@ -222,18 +222,17 @@ function getAgencyStats($conn) {
 
 function getPopularDestinations($conn) {
     $sql = "
-        SELECT
-            destinationCity,
-            destinationCountry,
-            COUNT(packageID) AS packageCount
-        FROM Package
-        WHERE destinationCity IS NOT NULL
-        AND destinationCity <> ''
-        AND status <> 'Deleted'
-        GROUP BY destinationCity, destinationCountry
-        ORDER BY packageCount DESC
-        LIMIT 3
-    ";
+    SELECT
+        destinationCity,
+        destinationCountry,
+        COUNT(packageID) AS packageCount
+    FROM Package
+    WHERE destinationCity IS NOT NULL
+    AND destinationCity <> ''
+    AND (status IS NULL OR status <> 'Deleted')
+    GROUP BY destinationCity, destinationCountry
+    ORDER BY packageCount DESC
+    LIMIT 3";
 
     $result = $conn->query($sql);
 
@@ -248,6 +247,29 @@ function getPopularDestinations($conn) {
     }
 
     jsonResponse(true, "Destinations loaded successfully.", $destinations);
+}
+
+function getHomeStats($conn) {
+    $sql = "
+        SELECT
+            (SELECT COUNT(*) FROM Package WHERE status IS NULL OR status <> 'Deleted') AS totalPackages,
+            (SELECT COUNT(*) FROM Agent) AS totalAgencies,
+            (SELECT COUNT(*) FROM Review) AS totalReviews,
+            (SELECT COALESCE(AVG(overallScore), 0) FROM Review) AS averageRating,
+            (SELECT COUNT(DISTINCT destinationCity)
+             FROM Package
+             WHERE destinationCity IS NOT NULL
+             AND destinationCity <> ''
+             AND (status IS NULL OR status <> 'Deleted')) AS totalDestinations
+    ";
+
+    $result = $conn->query($sql);
+
+    if (!$result) {
+        jsonResponse(false, "Could not load homepage stats: " . $conn->error, []);
+    }
+
+    jsonResponse(true, "Homepage stats loaded successfully.", $result->fetch_assoc());
 }
 
 $action = $_GET["action"] ?? "";
@@ -268,12 +290,19 @@ switch ($action) {
     case "getPopularDestinations":
         getPopularDestinations($conn);
         break;
+    
+    case "getHomeStats":
+        getHomeStats($conn);
+        break;
 
     default:
         jsonResponse(false, "Invalid or missing API action.", [
             "validActions" => [
                 "getPackages",
-                "getBrowseFilters"
+                "getBrowseFilters",
+                "getAgencyStats",
+                "getPopularDestinations",
+                "getHomeStats"
             ]
         ]);
 }
