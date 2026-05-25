@@ -6,7 +6,7 @@
 const PACKAGE_CONTROLLER = "../packages.php";
 const AGENCY_CONTROLLER  = "../agency.php";
 const LOGOUT_CONTROLLER  = "../logout.php";
-const LOGIN_PAGE         = "../traveller ui/login.html";
+const LOGIN_PAGE         = "../login.html";
 
 let csrfTokens = {};
 let _packages = [];
