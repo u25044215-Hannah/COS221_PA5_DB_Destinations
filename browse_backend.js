@@ -394,7 +394,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     return `
       <article class="package-card">
-        <img src="${image}" alt="${title}" class="package-img">
+
 
         <div class="package-content">
           <h3>${title}</h3>
