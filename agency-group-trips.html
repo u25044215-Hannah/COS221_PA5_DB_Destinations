@@ -27,7 +27,6 @@
     </div>
   </nav>
 
-  <!-- HERO -->
   <section class="agency-hero">
     <div class="container">
       <span class="eyebrow">Group Travel</span>
@@ -38,15 +37,15 @@
 
   <main class="container agency-main">
 
-    <!-- STATS ROW -->
+    <!-- STATS — populated from DB via loadGroupTripsPage() -->
     <section class="agency-stats agency-stats--sm">
       <div class="stat-card">
         <div class="stat-icon stat-icon--blue">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-trips">4</span>
-          <span class="stat-label">Scheduled Trips</span>
+          <span class="stat-big" id="stat-trips">—</span>
+          <span class="stat-label">Group Trips</span>
         </div>
       </div>
       <div class="stat-card">
@@ -54,7 +53,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-enrolled">37</span>
+          <span class="stat-big" id="stat-enrolled">—</span>
           <span class="stat-label">Total Enrolled</span>
         </div>
       </div>
@@ -63,7 +62,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-upcoming">2</span>
+          <span class="stat-big" id="stat-upcoming">—</span>
           <span class="stat-label">Upcoming Departures</span>
         </div>
       </div>
@@ -72,7 +71,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <div>
-          <span class="stat-big" id="stat-openspots">23</span>
+          <span class="stat-big" id="stat-openspots">—</span>
           <span class="stat-label">Open Spots</span>
         </div>
       </div>
@@ -85,95 +84,58 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input type="text" id="trip-search" placeholder="Search trips…" />
         </div>
-        <select id="trip-status-filter" class="card-select">
-          <option value="">All Status</option>
-          <option value="open">Open</option>
-          <option value="full">Full</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
       </div>
       <button class="btn btn-primary" id="add-trip-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Schedule Group Trip
+        Add Group Trip
       </button>
     </div>
 
-    <!-- TRIPS GRID -->
+    <!-- TRIPS GRID — populated from DB via loadGroupTripsPage() -->
     <div class="trips-grid" id="trips-grid">
-      <!-- Populated by JS -->
+      <p style="color:var(--grey-text);padding:2rem 0;">Loading group trips…</p>
     </div>
 
   </main>
 
-  <!-- ═══════════ GROUP TRIP MODAL ═══════════ -->
+  <!-- ═══ ADD GROUP TRIP MODAL ════════════════════════════════════════
+       GroupTrip schema: groupName, currentMembers (default 0), packageID
+       No departureDate / returnDate / status / maxGroupSize on this table.
+       Dates and capacity come from the linked Package via JOIN.
+  ═══════════════════════════════════════════════════════════════════ -->
   <div class="modal-overlay" id="trip-modal" style="display:none;">
     <div class="modal">
       <div class="modal-header">
-        <h2 id="trip-modal-title">Schedule Group Trip</h2>
+        <h2 id="trip-modal-title">Add Group Trip</h2>
         <button class="modal-close" id="close-trip-modal">✕</button>
       </div>
 
       <form class="modal-form" id="trip-form" novalidate>
-        <input type="hidden" id="trip-edit-id" />
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label>Trip Name <span class="req">*</span></label>
-            <input type="text" id="trip-name" placeholder="e.g. Bali Summer Group 2025" required />
+            <label>Group Name <span class="req">*</span></label>
+            <input type="text" id="trip-name" placeholder="e.g. Bali Summer Group 2026" required />
             <span class="field-error" id="err-trip-name"></span>
           </div>
           <div class="form-group">
             <label>Base Package <span class="req">*</span></label>
+            <!--
+              Options populated by loadPackageOptions() in agency.js.
+              Value = packageID (INT, FK to Package.packageID).
+              Dates, capacity and price come from the package automatically.
+            -->
             <select id="trip-package" required>
               <option value="">Select package…</option>
-              <!-- Populated by loadPackageOptions() in agency.js -->
             </select>
             <span class="field-error" id="err-trip-package"></span>
           </div>
         </div>
 
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label>Departure Date <span class="req">*</span></label>
-            <input type="date" id="trip-departure" required />
-            <span class="field-error" id="err-trip-departure"></span>
-          </div>
-          <div class="form-group">
-            <label>Return Date <span class="req">*</span></label>
-            <input type="date" id="trip-return" required />
-            <span class="field-error" id="err-trip-return"></span>
-          </div>
-        </div>
-
-        <div class="form-grid-3">
-          <div class="form-group">
-            <label>Max Group Size <span class="req">*</span></label>
-            <input type="number" id="trip-max" placeholder="20" min="2" required />
-            <span class="field-error" id="err-trip-max"></span>
-          </div>
-          <div class="form-group">
-            <label>Price per Person (ZAR)</label>
-            <input type="number" id="trip-price" placeholder="Leave blank to use package price" min="0" />
-          </div>
-          <div class="form-group">
-            <label>Meeting Point</label>
-            <input type="text" id="trip-meeting" placeholder="e.g. O.R. Tambo Airport, T1" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Trip Notes</label>
-          <textarea id="trip-notes" rows="3" placeholder="Anything travellers should know — visa requirements, packing tips, etc."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Status</label>
-          <select id="trip-status">
-            <option value="open">Open (accepting bookings)</option>
-            <option value="full">Full</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+        <div class="form-group" style="max-width:200px;">
+          <label>Starting Member Count</label>
+          <input type="number" id="trip-members" value="0" min="0" placeholder="0" />
+          <small style="color:var(--grey-text);">Usually 0 — members join via bookings.</small>
         </div>
 
         <div class="modal-footer">
@@ -184,7 +146,10 @@
     </div>
   </div>
 
-  <!-- ═══════════ ENROLLEES MODAL ═══════════ -->
+  <!-- ═══ ENROLLEES MODAL ═════════════════════════════════════════════
+       Reads GroupMembership JOIN User.
+       Returns: firstName, lastName, emailAddress, role, paymentStatus
+  ═══════════════════════════════════════════════════════════════════ -->
   <div class="modal-overlay" id="enrollees-modal" style="display:none;">
     <div class="modal">
       <div class="modal-header">
@@ -198,171 +163,116 @@
   </div>
 
   <script>
-    /* ── Group Trips Page ─────────────────────────────────────
-       All data comes from the API via agency.js helpers.
-       The inline hardcoded array has been removed.
-    ──────────────────────────────────────────────────────────── */
+    /* ── Group Trips Page Controller ────────────────────────────────
+       This page defines loadGroupTripsPage() which agency.js calls
+       instead of its generic loadGroupTrips() fallback.
+    ──────────────────────────────────────────────────────────────── */
 
     let _cachedTrips = [];
 
-    function formatDate(d) {
-      if (!d) return '—';
-      return new Date(d).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
+    /* Called by agency.js on DOMContentLoaded */
+    async function loadGroupTripsPage() {
+      const result = await apiRequest(AGENCY_CONTROLLER, "list_group_trips");
+      if (!result.success) {
+        showMessage(result.message || "Could not load group trips.", "error");
+        document.getElementById("trips-grid").innerHTML =
+          `<p class="empty-state">Failed to load group trips.</p>`;
+        return;
+      }
+      _cachedTrips = result.data || [];
+      renderPage(_cachedTrips);
+    }
+
+    function renderPage(trips) {
+      /* ── Stats ── */
+      const now = new Date();
+      const totalEnrolled  = trips.reduce((s, t) => s + parseInt(t.currentMembers || 0), 0);
+      const totalUpcoming  = trips.filter(t => t.startDate && new Date(t.startDate) > now).length;
+      const totalOpenSpots = trips.reduce((s, t) => {
+        const max = parseInt(t.maxCapacity || 0);
+        return s + (max > 0 ? Math.max(0, max - parseInt(t.currentMembers || 0)) : 0);
+      }, 0);
+
+      document.getElementById("stat-trips").textContent     = trips.length;
+      document.getElementById("stat-enrolled").textContent  = totalEnrolled;
+      document.getElementById("stat-upcoming").textContent  = totalUpcoming;
+      document.getElementById("stat-openspots").textContent = totalOpenSpots;
+
+      /* ── Filter by search ── */
+      const search   = (document.getElementById("trip-search")?.value || "").toLowerCase();
+      const filtered = trips.filter(t =>
+        !search ||
+        (t.groupName || "").toLowerCase().includes(search) ||
+        (t.packageTitle || "").toLowerCase().includes(search) ||
+        (t.destinationCity || "").toLowerCase().includes(search)
+      );
+
+      /* ── Render cards ── using agency.js renderGroupTripsGrid() ── */
+      renderGroupTripsGrid(filtered);
+    }
+
+    function applySearch() { renderPage(_cachedTrips); }
+
+    /* ── Modal helpers ── */
+    function openAddTripModal() {
+      document.getElementById("trip-modal-title").textContent = "Add Group Trip";
+      document.getElementById("trip-form").reset();
+      clearTripErrors();
+      document.getElementById("trip-modal").style.display = "flex";
     }
 
     function closeTripModals() {
-      document.getElementById('trip-modal').style.display = 'none';
-      document.getElementById('enrollees-modal').style.display = 'none';
+      document.getElementById("trip-modal").style.display      = "none";
+      document.getElementById("enrollees-modal").style.display = "none";
     }
 
     function clearTripErrors() {
-      ['trip-name','trip-package','trip-departure','trip-return','trip-max'].forEach(function(f) {
-        var el = document.getElementById('err-' + f);
-        if (el) el.textContent = '';
+      ["trip-name", "trip-package"].forEach(f => {
+        const el = document.getElementById("err-" + f);
+        if (el) el.textContent = "";
       });
     }
 
-    function openAddTripModal() {
-      document.getElementById('trip-modal-title').textContent = 'Schedule Group Trip';
-      document.getElementById('trip-form').reset();
-      document.getElementById('trip-edit-id').value = '';
-      clearTripErrors();
-      document.getElementById('trip-modal').style.display = 'flex';
-    }
-
-    /* ── Render trips grid from API data ──────────────────── */
-    function renderTripsFromData(trips) {
-      _cachedTrips = trips;
-      var search = (document.getElementById('trip-search').value || '').toLowerCase();
-      var statusF = document.getElementById('trip-status-filter').value;
-      var filtered = trips.filter(function(t) {
-        var nameMatch = !search ||
-          (t.groupName || '').toLowerCase().includes(search) ||
-          (t.packageTitle || t.title || '').toLowerCase().includes(search);
-        var statusMatch = !statusF || (t.status || '').toLowerCase() === statusF;
-        return nameMatch && statusMatch;
-      });
-
-      var grid = document.getElementById('trips-grid');
-      var now = new Date();
-
-      if (!filtered.length) {
-        grid.innerHTML = '<div class="empty-state"><p>No group trips found.</p><button class="btn btn-primary" onclick="openAddTripModal()">+ Schedule Trip</button></div>';
-      } else {
-        grid.innerHTML = filtered.map(function(t) {
-          var enrolled = parseInt(t.currentMembers || 0);
-          var max = parseInt(t.maxCapacity || t.maxGroupSize || 0);
-          var spotsLeft = max > 0 ? Math.max(0, max - enrolled) : '—';
-          var pct = max > 0 ? Math.round((enrolled / max) * 100) : 0;
-          var dep = t.departureDate || t.startDate || '';
-          var ret = t.returnDate || t.endDate || '';
-          var daysLeft = dep ? Math.ceil((new Date(dep) - now) / 86400000) : 0;
-          var status = (t.status || 'open').toLowerCase();
-          var pkgLabel = t.packageTitle || t.title || ('Package #' + t.packageID);
-
-          return '<div class="trip-card">' +
-            '<div class="trip-card-top">' +
-              '<div>' +
-                '<span class="trip-pkg-label">' + pkgLabel + '</span>' +
-                '<h3 class="trip-card-name">' + (t.groupName || 'Unnamed Trip') + '</h3>' +
-              '</div>' +
-              '<span class="status-badge status-badge--' + status + '">' + status + '</span>' +
-            '</div>' +
-            (dep || ret ? '<div class="trip-dates">' +
-              (dep ? '<div class="trip-date-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Departs <strong>' + formatDate(dep) + '</strong></span></div>' : '') +
-              (ret ? '<div class="trip-date-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg><span>Returns <strong>' + formatDate(ret) + '</strong></span></div>' : '') +
-            '</div>' : '') +
-            (daysLeft > 0 ? '<div class="trip-countdown">' + daysLeft + ' days until departure</div>' : '') +
-            (max > 0 ? '<div class="trip-capacity">' +
-              '<div class="capacity-labels"><span>' + enrolled + ' enrolled</span><span>' + spotsLeft + ' spot' + (spotsLeft !== 1 ? 's' : '') + ' left</span></div>' +
-              '<div class="capacity-bar"><div class="capacity-fill capacity-fill--' + (pct >= 100 ? 'full' : pct > 70 ? 'high' : 'low') + '" style="width:' + pct + '%"></div></div>' +
-              '<div class="capacity-max">Max ' + max + ' travellers</div>' +
-            '</div>' : '') +
-            '<div class="trip-actions">' +
-              '<button class="btn btn-sm" style="background:var(--sky-light);color:var(--dark);flex:1;" onclick="openEnrolleesModal(' + t.groupTripID + ')">👥 Enrollees (' + enrolled + ')</button>' +
-              '<button class="btn btn-sm" style="background:#fde8e8;color:#c0392b;" onclick="deleteGroupTrip(' + t.groupTripID + ')" title="Delete">🗑️</button>' +
-            '</div>' +
-          '</div>';
-        }).join('');
-      }
-
-      // Update stat cards from live data
-      document.getElementById('stat-trips').textContent = trips.length;
-      document.getElementById('stat-enrolled').textContent = trips.reduce(function(s,t){ return s + parseInt(t.currentMembers||0); }, 0);
-      document.getElementById('stat-upcoming').textContent = trips.filter(function(t){
-        var d = t.departureDate || t.startDate;
-        return d && new Date(d) > now && (t.status||'').toLowerCase() !== 'cancelled';
-      }).length;
-      document.getElementById('stat-openspots').textContent = trips.reduce(function(s,t){
-        var max = parseInt(t.maxCapacity||t.maxGroupSize||0);
-        return s + (max > 0 ? Math.max(0, max - parseInt(t.currentMembers||0)) : 0);
-      }, 0);
-    }
-
-    /* Override the agency.js loadGroupTrips for this page to use renderTripsFromData */
-    function loadGroupTripsPage() {
-      apiRequest(AGENCY_CONTROLLER, 'list_group_trips').then(function(result) {
-        if (!result.success) {
-          showMessage(result.message || 'Could not load group trips.', 'error');
-          renderTripsFromData([]);
-          return;
-        }
-        renderTripsFromData(result.data || []);
-      });
-    }
-
-    function applyFilters() {
-      renderTripsFromData(_cachedTrips);
-    }
-
-    /* ── Form submit → createGroupTrip in agency.js ──────── */
-    document.getElementById('trip-form').addEventListener('submit', function(e) {
+    /* ── Form submit ────────────────────────────────────────────────
+       Sends groupName, currentMembers, packageID to agency.js createGroupTrip()
+       which POSTs to agency.php?action=create_group_trip
+    ──────────────────────────────────────────────────────────────── */
+    document.getElementById("trip-form").addEventListener("submit", async function(e) {
       e.preventDefault();
       clearTripErrors();
-      var valid = true;
+      let valid = true;
 
-      var name = document.getElementById('trip-name').value.trim();
-      var pkg  = document.getElementById('trip-package').value;
-      var dep  = document.getElementById('trip-departure').value;
-      var ret  = document.getElementById('trip-return').value;
-      var max  = parseInt(document.getElementById('trip-max').value);
+      const name = document.getElementById("trip-name").value.trim();
+      const pkg  = document.getElementById("trip-package").value;
 
-      if (!name) { document.getElementById('err-trip-name').textContent = 'Trip name is required.'; valid = false; }
-      if (!pkg)  { document.getElementById('err-trip-package').textContent = 'Select a base package.'; valid = false; }
-      if (!dep)  { document.getElementById('err-trip-departure').textContent = 'Departure date is required.'; valid = false; }
-      if (!ret)  { document.getElementById('err-trip-return').textContent = 'Return date is required.'; valid = false; }
-      else if (ret <= dep) { document.getElementById('err-trip-return').textContent = 'Return must be after departure.'; valid = false; }
-      if (!max || max < 2) { document.getElementById('err-trip-max').textContent = 'Group must have at least 2 travellers.'; valid = false; }
+      if (!name) { document.getElementById("err-trip-name").textContent    = "Group name is required."; valid = false; }
+      if (!pkg)  { document.getElementById("err-trip-package").textContent = "Select a base package.";  valid = false; }
       if (!valid) return;
 
-      /* Build a synthetic submit event that createGroupTrip() in agency.js can use.
-         agency.js reads: form.groupName, form.currentMembers, form.packageID        */
-      var fakeForm = {
+      const fakeForm = {
         groupName:      { value: name },
-        currentMembers: { value: '0' },
+        currentMembers: { value: document.getElementById("trip-members").value || "0" },
         packageID:      { value: pkg },
-        reset: function() {
-          document.getElementById('trip-form').reset();
-        }
+        reset: () => document.getElementById("trip-form").reset()
       };
-      var fakeEvent = { preventDefault: function(){}, target: fakeForm };
-      createGroupTrip(fakeEvent).then(function() {
-        closeTripModals();
-        loadGroupTripsPage();
-      });
+
+      await createGroupTrip({ preventDefault: () => {}, target: fakeForm });
+      closeTripModals();
+      await loadGroupTripsPage();
     });
 
-    /* ── Bindings ────────────────────────────────────────── */
-    document.getElementById('add-trip-btn').addEventListener('click', openAddTripModal);
-    document.getElementById('close-trip-modal').addEventListener('click', closeTripModals);
-    document.getElementById('cancel-trip-modal').addEventListener('click', closeTripModals);
-    document.getElementById('close-enrollees-modal').addEventListener('click', closeTripModals);
-    document.getElementById('trip-modal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeTripModals(); });
-    document.getElementById('enrollees-modal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeTripModals(); });
-    document.getElementById('trip-search').addEventListener('input', applyFilters);
-    document.getElementById('trip-status-filter').addEventListener('change', applyFilters);
+    /* ── Bindings ── */
+    document.getElementById("add-trip-btn").addEventListener("click", openAddTripModal);
+    document.getElementById("close-trip-modal").addEventListener("click", closeTripModals);
+    document.getElementById("cancel-trip-modal").addEventListener("click", closeTripModals);
+    document.getElementById("close-enrollees-modal").addEventListener("click", closeTripModals);
+    document.getElementById("trip-modal").addEventListener("click", e => { if (e.target === e.currentTarget) closeTripModals(); });
+    document.getElementById("enrollees-modal").addEventListener("click", e => { if (e.target === e.currentTarget) closeTripModals(); });
+    document.getElementById("trip-search").addEventListener("input", applySearch);
 
-    if (new URLSearchParams(location.search).get('action') === 'new') openAddTripModal();
+    if (new URLSearchParams(location.search).get("action") === "new") {
+      document.addEventListener("DOMContentLoaded", () => setTimeout(openAddTripModal, 200));
+    }
   </script>
 
 <script src="js/agency.js"></script>
