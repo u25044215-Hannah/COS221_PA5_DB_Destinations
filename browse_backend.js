@@ -509,11 +509,18 @@ document.addEventListener("DOMContentLoaded", async function () {
   grid.addEventListener("click", function (e) {
     const btn = e.target.closest(".compare-add");
     if (!btn) return;
-
-    if (typeof addToCompare === "function") {
-      addToCompare(btn.dataset.id);
-      alert("Package added to compare.");
+  
+    const id = String(btn.dataset.id || "");
+  
+    let list = JSON.parse(localStorage.getItem("comparePackages")) || [];
+  
+    if (!list.includes(id)) {
+      list.push(id);
     }
+  
+    localStorage.setItem("comparePackages", JSON.stringify(list));
+  
+    alert("Package added to compare.");
   });
 
   const urlParams = new URLSearchParams(window.location.search);
