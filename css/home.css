@@ -552,3 +552,43 @@
   color: #48625c;
   margin: 0 auto;
 }
+
+#top-packages .section-header {
+  text-align: center;
+  max-width: 950px;
+  margin: 0 auto 35px;
+}
+
+#top-packages .section-header h2 {
+  font-size: clamp(38px, 5vw, 62px);
+  line-height: 1;
+  color: #123f4a;
+  margin-bottom: 14px;
+}
+
+#top-packages .section-header p {
+  font-size: 20px;
+  color: #48625c;
+  margin: 0 auto;
+}
+
+#top-packages .btn-outline {
+  color: #123f4a;
+  border: 2px solid #123f4a;
+  background: #ffffff;
+}
+
+#top-packages .btn-outline:hover {
+  background: #123f4a;
+  color: #ffffff;
+}
+
+#top-packages .text-center {
+  text-align: center;
+}
+
+#top-packages .text-center .btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
