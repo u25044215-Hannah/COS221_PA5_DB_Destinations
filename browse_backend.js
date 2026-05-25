@@ -516,5 +516,33 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const destinationFromURL = urlParams.get("destination");
+  const typeFromURL = urlParams.get("type");
+  const experienceFromURL = urlParams.get("experience");
+
+  if (destinationFromURL && searchInput) {
+    searchInput.value = destinationFromURL;
+  }
+
+  if (typeFromURL === "group" && groupOnly) {
+    groupOnly.checked = true;
+  }
+
+  if (experienceFromURL === "restaurant" && restaurantsIncluded) {
+    restaurantsIncluded.checked = true;
+  }
+
+  if (experienceFromURL === "excursion" && excursionsIncluded) {
+    excursionsIncluded.checked = true;
+  }
+
+  if (experienceFromURL === "resort" && accommodationSelect) {
+    setTimeout(() => {
+      accommodationSelect.value = "resort";
+      applyFilters();
+    }, 500);
+  } 
+
   loadInitialPackages();
 });
