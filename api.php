@@ -1,9 +1,5 @@
 <?php
-// api.php
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 
 require_once __DIR__ . "/config.php";
 
@@ -16,119 +12,97 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
-function jsonResponse($success, $message = "", $data = null, $statusCode = 200) {
-    http_response_code($statusCode);
+if (!isset($conn) && isset($mysqli)) {
+    $conn = $mysqli;
+}
 
+if (!isset($conn)) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Database connection variable not found. Expected \$conn."
+    ]);
+    exit();
+}
+
+function jsonResponse($success, $message, $data = null) {
     echo json_encode([
         "success" => $success,
         "message" => $message,
         "data" => $data
     ]);
-
     exit();
 }
 
-function getInput() {
-    $raw = file_get_contents("php://input");
-    $json = json_decode($raw, true);
-
-    return is_array($json) ? $json : [];
-}
-
-function tableExists($conn, $tableName) {
-    $stmt = $conn->prepare("
-        SELECT COUNT(*) AS total
-        FROM information_schema.tables
-        WHERE table_schema = DATABASE()
-        AND table_name = ?
-    ");
-
-    $stmt->bind_param("s", $tableName);
-    $stmt->execute();
-
-    $result = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    return intval($result["total"]) > 0;
-}
-
-/*
-    This endpoint is used by browse_backend.js.
-
-    It gets all packages and joins the related agency, destination,
-    accommodation and group-trip data where possible.
-*/
 function getPackages($conn) {
     $sql = "
-        SELECT
-            p.PackageID AS packageID,
-            p.PackageName AS packageName,
-            p.PackageName AS title,
-            p.Description AS description,
-            p.Price AS price,
-            p.Price AS pricePerPerson,
-            p.StartDate AS startDate,
-            p.EndDate AS endDate,
+    SELECT
+        p.packageID AS packageID,
+        p.title AS title,
+        p.title AS packageName,
+        p.description AS description,
+        p.pricePerPerson AS price,
+        p.pricePerPerson AS pricePerPerson,
+        p.currency AS currency,
+        p.maxCapacity AS maxCapacity,
+        p.startDate AS startDate,
+        p.endDate AS endDate,
+        p.destinationCity AS destinationCity,
+        p.destinationCountry AS destinationCountry,
+        p.status AS status,
 
-            DATEDIFF(p.EndDate, p.StartDate) AS durationDays,
+        DATEDIFF(p.endDate, p.startDate) AS durationDays,
 
-            d.DestinationID AS destinationID,
-            d.City AS destinationCity,
-            d.Country AS destinationCountry,
+        a.userID AS agentID,
+        a.companyName AS agencyName,
+        a.companyName AS companyName,
+        a.agentTier AS agentTier,
 
-            a.AgentID AS agentID,
-            a.CompanyName AS agencyName,
-            a.CompanyName AS companyName,
+        gt.groupTripID AS groupTripID,
+        gt.groupName AS groupName,
+        gt.currentMembers AS currentMembers,
 
-            ac.AccommodationID AS accommodationID,
-            ac.Name AS accommodationName,
-            ac.PropertyType AS propertyType,
-            ac.PropertyType AS accommodationType,
+        GROUP_CONCAT(DISTINCT ac.propertyType SEPARATOR ', ') AS propertyType,
+        GROUP_CONCAT(DISTINCT ac.propertyType SEPARATOR ', ') AS accommodationType,
 
-            gt.GroupTripID AS groupTripID,
-            gt.GroupName AS groupName,
-            gt.MaxGroupSize AS maxGroupSize,
+        0 AS averageRating
 
-            COALESCE(AVG(r.Rating), 0) AS averageRating
+    FROM Package p
 
-        FROM Package p
+    LEFT JOIN Agent a
+        ON p.agentID = a.userID
 
-        LEFT JOIN Destination d
-            ON p.DestinationID = d.DestinationID
+    LEFT JOIN GroupTrip gt
+        ON p.packageID = gt.packageID
 
-        LEFT JOIN Agent a
-            ON p.AgentID = a.AgentID
+    LEFT JOIN PackageComponent pc
+        ON p.packageID = pc.packageID
 
-        LEFT JOIN Accommodation ac
-            ON p.AccommodationID = ac.AccommodationID
+    LEFT JOIN Accommodation ac
+        ON pc.componentID = ac.componentID
 
-        LEFT JOIN GroupTrip gt
-            ON p.PackageID = gt.PackageID
+    WHERE p.status IS NULL
+    OR p.status <> 'Deleted'
 
-        LEFT JOIN Review r
-            ON p.PackageID = r.PackageID
+    GROUP BY
+        p.packageID,
+        p.title,
+        p.description,
+        p.pricePerPerson,
+        p.currency,
+        p.maxCapacity,
+        p.startDate,
+        p.endDate,
+        p.destinationCity,
+        p.destinationCountry,
+        p.status,
+        a.userID,
+        a.companyName,
+        a.agentTier,
+        gt.groupTripID,
+        gt.groupName,
+        gt.currentMembers
 
-        GROUP BY
-            p.PackageID,
-            p.PackageName,
-            p.Description,
-            p.Price,
-            p.StartDate,
-            p.EndDate,
-            d.DestinationID,
-            d.City,
-            d.Country,
-            a.AgentID,
-            a.CompanyName,
-            ac.AccommodationID,
-            ac.Name,
-            ac.PropertyType,
-            gt.GroupTripID,
-            gt.GroupName,
-            gt.MaxGroupSize
-
-        ORDER BY p.PackageID DESC
-    ";
+    ORDER BY p.packageID DESC";
 
     $result = $conn->query($sql);
 
@@ -145,14 +119,6 @@ function getPackages($conn) {
     jsonResponse(true, "Packages loaded successfully.", $packages);
 }
 
-/*
-    This endpoint fills the dropdowns on browse.html.
-
-    It returns:
-    - destinations
-    - agencies
-    - accommodation types
-*/
 function getBrowseFilters($conn) {
     $data = [
         "destinations" => [],
@@ -162,47 +128,58 @@ function getBrowseFilters($conn) {
 
     $destinationSQL = "
         SELECT DISTINCT
-            DestinationID AS destinationID,
-            City AS destinationCity,
-            Country AS destinationCountry
-        FROM Destination
-        ORDER BY Country ASC, City ASC
-    ";
-
-    $agencySQL = "
-        SELECT DISTINCT
-            AgentID AS agentID,
-            CompanyName AS agencyName,
-            CompanyName AS companyName
-        FROM Agent
-        ORDER BY CompanyName ASC
-    ";
-
-    $accommodationSQL = "
-        SELECT DISTINCT
-            PropertyType AS propertyType,
-            PropertyType AS accommodationType
-        FROM Accommodation
-        WHERE PropertyType IS NOT NULL
-        AND PropertyType <> ''
-        ORDER BY PropertyType ASC
+            destinationCity,
+            destinationCountry,
+            CONCAT(destinationCity, ', ', destinationCountry) AS destinationLabel
+        FROM Package
+        WHERE destinationCity IS NOT NULL
+        AND destinationCity <> ''
+        ORDER BY destinationCountry ASC, destinationCity ASC
     ";
 
     $destinationResult = $conn->query($destinationSQL);
+
     if ($destinationResult) {
         while ($row = $destinationResult->fetch_assoc()) {
-            $data["destinations"][] = $row;
+            $data["destinations"][] = [
+                "destinationID" => $row["destinationLabel"],
+                "destinationCity" => $row["destinationCity"],
+                "destinationCountry" => $row["destinationCountry"]
+            ];
         }
     }
 
+    $agencySQL = "
+        SELECT DISTINCT
+            userID AS agentID,
+            companyName AS agencyName,
+            companyName AS companyName
+        FROM Agent
+        WHERE companyName IS NOT NULL
+        AND companyName <> ''
+        ORDER BY companyName ASC
+    ";
+
     $agencyResult = $conn->query($agencySQL);
+
     if ($agencyResult) {
         while ($row = $agencyResult->fetch_assoc()) {
             $data["agencies"][] = $row;
         }
     }
 
+    $accommodationSQL = "
+        SELECT DISTINCT
+            propertyType AS propertyType,
+            propertyType AS accommodationType
+        FROM Accommodation
+        WHERE propertyType IS NOT NULL
+        AND propertyType <> ''
+        ORDER BY propertyType ASC
+    ";
+
     $accommodationResult = $conn->query($accommodationSQL);
+
     if ($accommodationResult) {
         while ($row = $accommodationResult->fetch_assoc()) {
             $data["accommodationTypes"][] = $row;
@@ -212,64 +189,7 @@ function getBrowseFilters($conn) {
     jsonResponse(true, "Browse filters loaded successfully.", $data);
 }
 
-function getUsers($conn) {
-    $sql = "
-        SELECT UserID, Name, Surname, Email, UserType, CreatedAt
-        FROM Users
-        ORDER BY UserID ASC
-    ";
-
-    $result = $conn->query($sql);
-
-    if (!$result) {
-        jsonResponse(false, "Query failed: " . $conn->error, []);
-    }
-
-    $users = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $users[] = $row;
-    }
-
-    jsonResponse(true, "Users loaded successfully.", $users);
-}
-
-function getUserByID($conn, $userID) {
-    if ($userID === null || !is_numeric($userID)) {
-        jsonResponse(false, "Valid userID is required.", null, 400);
-    }
-
-    $stmt = $conn->prepare("
-        SELECT UserID, Name, Surname, Email, UserType, CreatedAt
-        FROM Users
-        WHERE UserID = ?
-    ");
-
-    if (!$stmt) {
-        jsonResponse(false, "Prepare failed: " . $conn->error, null, 500);
-    }
-
-    $userID = intval($userID);
-
-    $stmt->bind_param("i", $userID);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 0) {
-        $stmt->close();
-        jsonResponse(false, "User not found.", null, 404);
-    }
-
-    $user = $result->fetch_assoc();
-    $stmt->close();
-
-    jsonResponse(true, "User loaded successfully.", $user);
-}
-
-$input = getInput();
-
-$action = $_GET["action"] ?? $_GET["type"] ?? $input["action"] ?? $input["type"] ?? "";
+$action = $_GET["action"] ?? "";
 
 switch ($action) {
     case "getPackages":
@@ -280,25 +200,13 @@ switch ($action) {
         getBrowseFilters($conn);
         break;
 
-    case "getUsers":
-        getUsers($conn);
-        break;
-
-    case "getUserByID":
-        $userID = $_GET["userID"] ?? $input["userID"] ?? null;
-        getUserByID($conn, $userID);
-        break;
-
     default:
         jsonResponse(false, "Invalid or missing API action.", [
-            "receivedAction" => $action,
             "validActions" => [
                 "getPackages",
-                "getBrowseFilters",
-                "getUsers",
-                "getUserByID"
+                "getBrowseFilters"
             ]
-        ], 400);
+        ]);
 }
 
 $conn->close();
