@@ -296,28 +296,21 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const matchesSearch = !searchValue || text.includes(searchValue);
 
-      const matchesDestination =
-        !destinationValue ||
-        normalise(pkg.destinationID) === destinationValue ||
-        normalise(pkg.destinationCity).includes(destinationValue) ||
-        normalise(pkg.destinationCountry).includes(destinationValue) ||
-        text.includes(destinationValue);
+      const matchesDestination = !destinationValue ||
+            normalise(`${pkg.destinationCity || ""}, ${pkg.destinationCountry || ""}`) === destinationValue ||
+            normalise(pkg.destinationCity).includes(destinationValue) ||
+            normalise(pkg.destinationCountry).includes(destinationValue);
 
       const matchesPrice = !maxPrice || price <= maxPrice;
       const matchesRating = rating >= minRating;
 
-      const matchesAgency =
-        !agencyValue ||
-        normalise(pkg.agentID) === agencyValue ||
-        normalise(pkg.agencyID) === agencyValue ||
-        normalise(pkg.companyName).includes(agencyValue) ||
-        normalise(pkg.agencyName).includes(agencyValue);
+      const matchesAgency = !agencyValue ||
+            normalise(pkg.agencyName).includes(agencyValue) ||
+            normalise(pkg.companyName).includes(agencyValue);
 
-      const matchesAccommodation =
-        !accommodationValue ||
-        normalise(pkg.propertyType).includes(accommodationValue) ||
-        normalise(pkg.accommodationType).includes(accommodationValue) ||
-        text.includes(accommodationValue);
+      const matchesAccommodation =!accommodationValue ||
+            normalise(pkg.propertyType).includes(accommodationValue) ||
+            normalise(pkg.accommodationType).includes(accommodationValue);
 
       const matchesDuration = packageMatchesDuration(pkg);
 
