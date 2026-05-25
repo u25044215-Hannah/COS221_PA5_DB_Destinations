@@ -23,7 +23,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Agency Portal
       </span>
-      <a href="../traveller ui/login.html" class="btn btn-outline btn-sm">Log Out</a>
+      <a href="#" id="logout-btn" class="btn btn-outline btn-sm">Log Out</a>
     </div>
   </nav>
 
@@ -127,12 +127,7 @@
             <label>Base Package <span class="req">*</span></label>
             <select id="trip-package" required>
               <option value="">Select package…</option>
-              <option value="Bali Bliss 10D">Bali Bliss 10D</option>
-              <option value="Swiss Alps 7D">Swiss Alps 7D</option>
-              <option value="London Explorer">London Explorer</option>
-              <option value="Tokyo 8D">Tokyo 8D</option>
-              <option value="Zanzibar Beach 5D">Zanzibar Beach 5D</option>
-              <option value="Paris Getaway 4D">Paris Getaway 4D</option>
+              <!-- Populated by loadPackageOptions() in agency.js -->
             </select>
             <span class="field-error" id="err-trip-package"></span>
           </div>
@@ -203,160 +198,16 @@
   </div>
 
   <script>
-    // ── Data Store ─────────────────────────────────────────────
-    let groupTrips = [
-      { id: 1, name: 'Bali Summer Group 2025', pkg: 'Bali Bliss 10D',   departure: '2025-07-15', returnDate: '2025-07-25', max: 15, enrolled: 12, price: 27000, meeting: 'O.R. Tambo Airport, T1', notes: 'Visa on arrival for SA passport holders.', status: 'open',
-        enrollees: ['Alice Mokoena','James Dube','Sara Khumalo','Thabo Nkosi','Lindiwe Zulu','Mike Peters','Amahle Dlamini','Sipho Ndlovu','Fatima Essop','Keanu Visser','Naledi Sithole','Ruan Botha'] },
-      { id: 2, name: 'Swiss Adventure July',    pkg: 'Swiss Alps 7D',    departure: '2025-07-28', returnDate: '2025-08-04', max: 10, enrolled: 10, price: 44000, meeting: 'Cape Town International, arrivals', notes: 'Pack layers — alpine temperatures vary.', status: 'full',
-        enrollees: ['David Smith','Nora Johnson','Carlos Ferreira','Yuki Tanaka','Priya Patel','Tom Wilson','Julia Chen','Leon Petersen','Zara Ahmed','Bongani Mthembu'] },
-      { id: 3, name: 'London Culture Week',     pkg: 'London Explorer',  departure: '2025-09-02', returnDate: '2025-09-10', max: 20, enrolled: 8, price: 31000,  meeting: 'King Shaka Airport, departures', notes: 'Travel insurance is mandatory.', status: 'open',
-        enrollees: ['Maria Silva','Ahmed Hassan','Chloe Martin','Jin Park','Pablo Ruiz','Ntombi Khumalo','Gareth Evans','Anita Naicker'] },
-      { id: 4, name: 'Tokyo Autumn Explorer',   pkg: 'Tokyo 8D',         departure: '2025-10-20', returnDate: '2025-10-28', max: 12, enrolled: 7, price: 49500,  meeting: 'O.R. Tambo Airport, T1 Check-in', notes: 'IC Card for transport will be arranged on arrival.', status: 'open',
-        enrollees: ['Chris Lee','Mia van der Berg','Kagiso Moagi','Sophie Turner','Tariq Osman','Heidi Müller','Wandile Nene'] },
-    ];
-    let nextTripId = 5;
-    let editingTripId = null;
+    /* ── Group Trips Page ─────────────────────────────────────
+       All data comes from the API via agency.js helpers.
+       The inline hardcoded array has been removed.
+    ──────────────────────────────────────────────────────────── */
 
-    // ── Render Trips ───────────────────────────────────────────
-    function renderTrips() {
-      const search = document.getElementById('trip-search').value.toLowerCase();
-      const statusF = document.getElementById('trip-status-filter').value;
-      const filtered = groupTrips.filter(t =>
-        (!search || t.name.toLowerCase().includes(search) || t.pkg.toLowerCase().includes(search)) &&
-        (!statusF || t.status === statusF)
-      );
-      const grid = document.getElementById('trips-grid');
-      if (!filtered.length) {
-        grid.innerHTML = '<div class="empty-state"><p>No group trips found.</p><button class="btn btn-primary" onclick="openAddTripModal()">+ Schedule Trip</button></div>';
-        return;
-      }
-      const now = new Date();
-      grid.innerHTML = filtered.map(t => {
-        const dep = new Date(t.departure);
-        const ret = new Date(t.returnDate);
-        const daysLeft = Math.ceil((dep - now) / 86400000);
-        const spotsLeft = t.max - t.enrolled;
-        const pct = Math.round((t.enrolled / t.max) * 100);
-        return `
-        <div class="trip-card">
-          <div class="trip-card-top">
-            <div>
-              <span class="trip-pkg-label">${t.pkg}</span>
-              <h3 class="trip-card-name">${t.name}</h3>
-            </div>
-            <span class="status-badge status-badge--${t.status}">${t.status}</span>
-          </div>
-
-          <div class="trip-dates">
-            <div class="trip-date-item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span>Departs <strong>${formatDate(t.departure)}</strong></span>
-            </div>
-            <div class="trip-date-item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              <span>Returns <strong>${formatDate(t.returnDate)}</strong></span>
-            </div>
-          </div>
-
-          ${daysLeft > 0 ? `<div class="trip-countdown">${daysLeft} days until departure</div>` : ''}
-
-          <div class="trip-capacity">
-            <div class="capacity-labels">
-              <span>${t.enrolled} enrolled</span>
-              <span>${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left</span>
-            </div>
-            <div class="capacity-bar">
-              <div class="capacity-fill capacity-fill--${pct >= 100 ? 'full' : pct > 70 ? 'high' : 'low'}" style="width:${pct}%"></div>
-            </div>
-            <div class="capacity-max">Max ${t.max} travellers</div>
-          </div>
-
-          ${t.meeting ? `<div class="trip-meeting"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${t.meeting}</div>` : ''}
-
-          <div class="trip-price">R ${(t.price || 0).toLocaleString()} <span>per person</span></div>
-
-          <div class="trip-actions">
-            <button class="btn btn-sm" style="background:var(--sky-light);color:var(--dark);flex:1;" onclick="viewEnrollees(${t.id})">
-              👥 Enrollees (${t.enrolled})
-            </button>
-            <button class="btn btn-sm" style="background:var(--grey-light);color:var(--dark);" onclick="openEditTripModal(${t.id})" title="Edit">
-              ✏️
-            </button>
-            <button class="btn btn-sm" style="background:#fde8e8;color:#c0392b;" onclick="deleteTrip(${t.id})" title="Delete">
-              🗑️
-            </button>
-          </div>
-        </div>`;
-      }).join('');
-
-      // Update stats
-      document.getElementById('stat-trips').textContent = groupTrips.length;
-      document.getElementById('stat-enrolled').textContent = groupTrips.reduce((s,t) => s + t.enrolled, 0);
-      document.getElementById('stat-upcoming').textContent = groupTrips.filter(t => new Date(t.departure) > now && t.status !== 'cancelled').length;
-      document.getElementById('stat-openspots').textContent = groupTrips.reduce((s,t) => s + Math.max(0, t.max - t.enrolled), 0);
-    }
+    let _cachedTrips = [];
 
     function formatDate(d) {
+      if (!d) return '—';
       return new Date(d).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-
-    // ── Modal Logic ────────────────────────────────────────────
-    function openAddTripModal() {
-      editingTripId = null;
-      document.getElementById('trip-modal-title').textContent = 'Schedule Group Trip';
-      document.getElementById('trip-form').reset();
-      clearTripErrors();
-      document.getElementById('trip-modal').style.display = 'flex';
-    }
-
-    function openEditTripModal(id) {
-      const t = groupTrips.find(x => x.id === id);
-      if (!t) return;
-      editingTripId = id;
-      document.getElementById('trip-modal-title').textContent = 'Edit Group Trip';
-      document.getElementById('trip-edit-id').value = id;
-      document.getElementById('trip-name').value = t.name;
-      document.getElementById('trip-package').value = t.pkg;
-      document.getElementById('trip-departure').value = t.departure;
-      document.getElementById('trip-return').value = t.returnDate;
-      document.getElementById('trip-max').value = t.max;
-      document.getElementById('trip-price').value = t.price || '';
-      document.getElementById('trip-meeting').value = t.meeting || '';
-      document.getElementById('trip-notes').value = t.notes || '';
-      document.getElementById('trip-status').value = t.status;
-      clearTripErrors();
-      document.getElementById('trip-modal').style.display = 'flex';
-    }
-
-    function viewEnrollees(id) {
-      const t = groupTrips.find(x => x.id === id);
-      if (!t) return;
-      document.getElementById('enrollees-title').textContent = `Enrolled Travellers — ${t.name}`;
-      document.getElementById('enrollees-list').innerHTML = t.enrollees.length
-        ? `<table class="bookings-table" style="margin-top:8px;">
-            <thead><tr><th>#</th><th>Traveller Name</th><th>Action</th></tr></thead>
-            <tbody>${t.enrollees.map((e, i) => `
-              <tr>
-                <td>${i + 1}</td>
-                <td>${e}</td>
-                <td><span class="status-badge status-badge--confirmed">Confirmed</span></td>
-              </tr>`).join('')}
-            </tbody>
-          </table>`
-        : '<p style="color:var(--grey-text);padding:16px 0;">No travellers enrolled yet.</p>';
-      document.getElementById('enrollees-modal').style.display = 'flex';
-    }
-
-    function deleteTrip(id) {
-      if (confirm('Are you sure you want to delete this group trip?')) {
-        groupTrips = groupTrips.filter(t => t.id !== id);
-        renderTrips();
-      }
-    }
-
-    function clearTripErrors() {
-      ['trip-name','trip-package','trip-departure','trip-return','trip-max'].forEach(f =>
-        document.getElementById('err-' + f).textContent = '');
     }
 
     function closeTripModals() {
@@ -364,58 +215,154 @@
       document.getElementById('enrollees-modal').style.display = 'none';
     }
 
-    // ── Form Save ──────────────────────────────────────────────
-    document.getElementById('trip-form').addEventListener('submit', e => {
+    function clearTripErrors() {
+      ['trip-name','trip-package','trip-departure','trip-return','trip-max'].forEach(function(f) {
+        var el = document.getElementById('err-' + f);
+        if (el) el.textContent = '';
+      });
+    }
+
+    function openAddTripModal() {
+      document.getElementById('trip-modal-title').textContent = 'Schedule Group Trip';
+      document.getElementById('trip-form').reset();
+      document.getElementById('trip-edit-id').value = '';
+      clearTripErrors();
+      document.getElementById('trip-modal').style.display = 'flex';
+    }
+
+    /* ── Render trips grid from API data ──────────────────── */
+    function renderTripsFromData(trips) {
+      _cachedTrips = trips;
+      var search = (document.getElementById('trip-search').value || '').toLowerCase();
+      var statusF = document.getElementById('trip-status-filter').value;
+      var filtered = trips.filter(function(t) {
+        var nameMatch = !search ||
+          (t.groupName || '').toLowerCase().includes(search) ||
+          (t.packageTitle || t.title || '').toLowerCase().includes(search);
+        var statusMatch = !statusF || (t.status || '').toLowerCase() === statusF;
+        return nameMatch && statusMatch;
+      });
+
+      var grid = document.getElementById('trips-grid');
+      var now = new Date();
+
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="empty-state"><p>No group trips found.</p><button class="btn btn-primary" onclick="openAddTripModal()">+ Schedule Trip</button></div>';
+      } else {
+        grid.innerHTML = filtered.map(function(t) {
+          var enrolled = parseInt(t.currentMembers || 0);
+          var max = parseInt(t.maxCapacity || t.maxGroupSize || 0);
+          var spotsLeft = max > 0 ? Math.max(0, max - enrolled) : '—';
+          var pct = max > 0 ? Math.round((enrolled / max) * 100) : 0;
+          var dep = t.departureDate || t.startDate || '';
+          var ret = t.returnDate || t.endDate || '';
+          var daysLeft = dep ? Math.ceil((new Date(dep) - now) / 86400000) : 0;
+          var status = (t.status || 'open').toLowerCase();
+          var pkgLabel = t.packageTitle || t.title || ('Package #' + t.packageID);
+
+          return '<div class="trip-card">' +
+            '<div class="trip-card-top">' +
+              '<div>' +
+                '<span class="trip-pkg-label">' + pkgLabel + '</span>' +
+                '<h3 class="trip-card-name">' + (t.groupName || 'Unnamed Trip') + '</h3>' +
+              '</div>' +
+              '<span class="status-badge status-badge--' + status + '">' + status + '</span>' +
+            '</div>' +
+            (dep || ret ? '<div class="trip-dates">' +
+              (dep ? '<div class="trip-date-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Departs <strong>' + formatDate(dep) + '</strong></span></div>' : '') +
+              (ret ? '<div class="trip-date-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg><span>Returns <strong>' + formatDate(ret) + '</strong></span></div>' : '') +
+            '</div>' : '') +
+            (daysLeft > 0 ? '<div class="trip-countdown">' + daysLeft + ' days until departure</div>' : '') +
+            (max > 0 ? '<div class="trip-capacity">' +
+              '<div class="capacity-labels"><span>' + enrolled + ' enrolled</span><span>' + spotsLeft + ' spot' + (spotsLeft !== 1 ? 's' : '') + ' left</span></div>' +
+              '<div class="capacity-bar"><div class="capacity-fill capacity-fill--' + (pct >= 100 ? 'full' : pct > 70 ? 'high' : 'low') + '" style="width:' + pct + '%"></div></div>' +
+              '<div class="capacity-max">Max ' + max + ' travellers</div>' +
+            '</div>' : '') +
+            '<div class="trip-actions">' +
+              '<button class="btn btn-sm" style="background:var(--sky-light);color:var(--dark);flex:1;" onclick="openEnrolleesModal(' + t.groupTripID + ')">👥 Enrollees (' + enrolled + ')</button>' +
+              '<button class="btn btn-sm" style="background:#fde8e8;color:#c0392b;" onclick="deleteGroupTrip(' + t.groupTripID + ')" title="Delete">🗑️</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // Update stat cards from live data
+      document.getElementById('stat-trips').textContent = trips.length;
+      document.getElementById('stat-enrolled').textContent = trips.reduce(function(s,t){ return s + parseInt(t.currentMembers||0); }, 0);
+      document.getElementById('stat-upcoming').textContent = trips.filter(function(t){
+        var d = t.departureDate || t.startDate;
+        return d && new Date(d) > now && (t.status||'').toLowerCase() !== 'cancelled';
+      }).length;
+      document.getElementById('stat-openspots').textContent = trips.reduce(function(s,t){
+        var max = parseInt(t.maxCapacity||t.maxGroupSize||0);
+        return s + (max > 0 ? Math.max(0, max - parseInt(t.currentMembers||0)) : 0);
+      }, 0);
+    }
+
+    /* Override the agency.js loadGroupTrips for this page to use renderTripsFromData */
+    function loadGroupTripsPage() {
+      apiRequest(AGENCY_CONTROLLER, 'list_group_trips').then(function(result) {
+        if (!result.success) {
+          showMessage(result.message || 'Could not load group trips.', 'error');
+          renderTripsFromData([]);
+          return;
+        }
+        renderTripsFromData(result.data || []);
+      });
+    }
+
+    function applyFilters() {
+      renderTripsFromData(_cachedTrips);
+    }
+
+    /* ── Form submit → createGroupTrip in agency.js ──────── */
+    document.getElementById('trip-form').addEventListener('submit', function(e) {
       e.preventDefault();
       clearTripErrors();
-      let valid = true;
+      var valid = true;
 
-      const name = document.getElementById('trip-name').value.trim();
-      const pkg  = document.getElementById('trip-package').value;
-      const dep  = document.getElementById('trip-departure').value;
-      const ret  = document.getElementById('trip-return').value;
-      const max  = parseInt(document.getElementById('trip-max').value);
+      var name = document.getElementById('trip-name').value.trim();
+      var pkg  = document.getElementById('trip-package').value;
+      var dep  = document.getElementById('trip-departure').value;
+      var ret  = document.getElementById('trip-return').value;
+      var max  = parseInt(document.getElementById('trip-max').value);
 
-      if (!name)     { document.getElementById('err-trip-name').textContent = 'Trip name is required.'; valid = false; }
-      if (!pkg)      { document.getElementById('err-trip-package').textContent = 'Select a base package.'; valid = false; }
-      if (!dep)      { document.getElementById('err-trip-departure').textContent = 'Departure date is required.'; valid = false; }
-      if (!ret)      { document.getElementById('err-trip-return').textContent = 'Return date is required.'; valid = false; }
+      if (!name) { document.getElementById('err-trip-name').textContent = 'Trip name is required.'; valid = false; }
+      if (!pkg)  { document.getElementById('err-trip-package').textContent = 'Select a base package.'; valid = false; }
+      if (!dep)  { document.getElementById('err-trip-departure').textContent = 'Departure date is required.'; valid = false; }
+      if (!ret)  { document.getElementById('err-trip-return').textContent = 'Return date is required.'; valid = false; }
       else if (ret <= dep) { document.getElementById('err-trip-return').textContent = 'Return must be after departure.'; valid = false; }
       if (!max || max < 2) { document.getElementById('err-trip-max').textContent = 'Group must have at least 2 travellers.'; valid = false; }
       if (!valid) return;
 
-      const data = {
-        name, pkg, departure: dep, returnDate: ret, max,
-        price: parseFloat(document.getElementById('trip-price').value) || 0,
-        meeting: document.getElementById('trip-meeting').value.trim(),
-        notes: document.getElementById('trip-notes').value.trim(),
-        status: document.getElementById('trip-status').value,
+      /* Build a synthetic submit event that createGroupTrip() in agency.js can use.
+         agency.js reads: form.groupName, form.currentMembers, form.packageID        */
+      var fakeForm = {
+        groupName:      { value: name },
+        currentMembers: { value: '0' },
+        packageID:      { value: pkg },
+        reset: function() {
+          document.getElementById('trip-form').reset();
+        }
       };
-
-      if (editingTripId) {
-        const idx = groupTrips.findIndex(t => t.id === editingTripId);
-        groupTrips[idx] = { ...groupTrips[idx], ...data };
-      } else {
-        groupTrips.push({ id: nextTripId++, enrolled: 0, enrollees: [], ...data });
-      }
-
-      closeTripModals();
-      renderTrips();
+      var fakeEvent = { preventDefault: function(){}, target: fakeForm };
+      createGroupTrip(fakeEvent).then(function() {
+        closeTripModals();
+        loadGroupTripsPage();
+      });
     });
 
-    // ── Bindings ───────────────────────────────────────────────
+    /* ── Bindings ────────────────────────────────────────── */
     document.getElementById('add-trip-btn').addEventListener('click', openAddTripModal);
     document.getElementById('close-trip-modal').addEventListener('click', closeTripModals);
     document.getElementById('cancel-trip-modal').addEventListener('click', closeTripModals);
     document.getElementById('close-enrollees-modal').addEventListener('click', closeTripModals);
-    document.getElementById('trip-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeTripModals(); });
-    document.getElementById('enrollees-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeTripModals(); });
-    document.getElementById('trip-search').addEventListener('input', renderTrips);
-    document.getElementById('trip-status-filter').addEventListener('change', renderTrips);
+    document.getElementById('trip-modal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeTripModals(); });
+    document.getElementById('enrollees-modal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeTripModals(); });
+    document.getElementById('trip-search').addEventListener('input', applyFilters);
+    document.getElementById('trip-status-filter').addEventListener('change', applyFilters);
 
     if (new URLSearchParams(location.search).get('action') === 'new') openAddTripModal();
-
-    renderTrips();
   </script>
 
 <script src="js/agency.js"></script>
