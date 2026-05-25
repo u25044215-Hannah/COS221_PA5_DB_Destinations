@@ -189,6 +189,37 @@ function getBrowseFilters($conn) {
     jsonResponse(true, "Browse filters loaded successfully.", $data);
 }
 
+function getAgencyStats($conn) {
+    $sql = "
+        SELECT
+            COUNT(*) AS totalAgencies,
+            COALESCE(AVG(agentPackageCounts.packageCount), 0) AS avgPackagesPerAgency,
+            COALESCE(SUM(agentPackageCounts.bookingCount), 0) AS totalBookings
+        FROM Agent a
+        LEFT JOIN (
+            SELECT
+                p.agentID,
+                COUNT(DISTINCT p.packageID) AS packageCount,
+                COUNT(DISTINCT b.bookingID) AS bookingCount
+            FROM Package p
+            LEFT JOIN Booking b
+                ON p.packageID = b.packageID
+            GROUP BY p.agentID
+        ) agentPackageCounts
+            ON a.userID = agentPackageCounts.agentID
+    ";
+
+    $result = $conn->query($sql);
+
+    if (!$result) {
+        jsonResponse(false, "Could not load agency stats: " . $conn->error, []);
+    }
+
+    $stats = $result->fetch_assoc();
+
+    jsonResponse(true, "Agency stats loaded successfully.", $stats);
+}
+
 $action = $_GET["action"] ?? "";
 
 switch ($action) {
@@ -199,6 +230,10 @@ switch ($action) {
     case "getBrowseFilters":
         getBrowseFilters($conn);
         break;
+    
+    case "getAgencyStats":
+        getAgencyStats($conn);
+        break;
 
     default:
         jsonResponse(false, "Invalid or missing API action.", [
@@ -208,6 +243,8 @@ switch ($action) {
             ]
         ]);
 }
+
+
 
 $conn->close();
 ?>
