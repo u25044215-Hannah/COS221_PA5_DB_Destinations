@@ -542,7 +542,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       accommodationSelect.value = "resort";
       applyFilters();
     }, 500);
-  } 
+} 
 
   loadInitialPackages();
 });

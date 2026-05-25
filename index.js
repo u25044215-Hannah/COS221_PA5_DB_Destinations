@@ -124,3 +124,25 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Could not load homepage stats:", error);
     }
   }
+
+  function handleSearch() {
+    const destination = document.getElementById("search-destination").value.trim();
+    const date = document.getElementById("search-date").value;
+    const guests = document.getElementById("search-guests").value;
+  
+    const params = new URLSearchParams();
+  
+    if (destination !== "") {
+      params.set("destination", destination);
+    }
+  
+    if (date !== "") {
+      params.set("date", date);
+    }
+  
+    if (guests !== "") {
+      params.set("guests", guests);
+    }
+  
+    window.location.href = "browse.html?" + params.toString();
+  }

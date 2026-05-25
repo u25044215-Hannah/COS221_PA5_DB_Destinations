@@ -47,22 +47,41 @@
 
       <div class="hero-search-card">
         <div class="search-field">
-          <label>Destination</label>
-          <input type="text" id="search-destination" placeholder="Where to?" autocomplete="off" />
+          <label for="search-destination">Destination</label>
+          <input
+              type="text"
+              id="search-destination"
+              placeholder="Where to?"
+              autocomplete="off"
+          />
         </div>
+
         <div class="search-divider"></div>
+
         <div class="search-field">
-          <label>Dates</label>
+          <label for="search-date">Dates</label>
           <input type="date" id="search-date" />
         </div>
+
         <div class="search-divider"></div>
+
         <div class="search-field">
-          <label>Guests</label>
-          <input type="number" id="search-guests" placeholder="2 Travellers" min="1" max="30" />
+          <label for="search-guests">Guests</label>
+          <input
+            type="number"
+            id="search-guests"
+            placeholder="2 Travellers"
+            min="1"
+            max="30"
+          />
         </div>
-        <button class="btn btn-primary search-btn" onclick="handleSearch()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          Find Trips
+
+        <button class="btn btn-primary search-btn" type="button" onclick="handleSearch()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        Find Trips
         </button>
       </div>
       <a href="browse.html" class="hero-browse-link">Or browse all packages →</a>
