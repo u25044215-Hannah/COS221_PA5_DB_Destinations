@@ -883,3 +883,13 @@ ON `Package`(`agentID`);
 
 CREATE INDEX `idx_grouptrip_package`
 ON `GroupTrip`(`packageID`);
+
+
+INSERT INTO `Package`
+(`agentID`, `title`, `description`, `pricePerPerson`, `currency`, `maxCapacity`, `startDate`, `endDate`, `destinationCity`, `destinationCountry`, `status`)
+VALUES
+(15, 'Cape Town Test Escape', 'A test package for the agent@gmail.com account.', 18500.00, 'ZAR', 20, '2026-07-01', '2026-07-07', 'Cape Town', 'South Africa', 'Active'),
+(15, 'Durban Beach Holiday', 'A relaxing coastal package for testing agency package management.', 14500.00, 'ZAR', 25, '2026-07-10', '2026-07-16', 'Durban', 'South Africa', 'Active'),
+(15, 'Kruger Safari Adventure', 'A wildlife safari package created for agent ID 15.', 22000.00, 'ZAR', 18, '2026-08-05', '2026-08-11', 'Kruger National Park', 'South Africa', 'Active'),
+(15, 'Garden Route Road Trip', 'A scenic travel package along the Garden Route.', 19500.00, 'ZAR', 16, '2026-08-20', '2026-08-27', 'Knysna', 'South Africa', 'Active'),
+(15, 'Johannesburg City Experience', 'A city and culture package for local travellers.', 12000.00, 'ZAR', 30, '2026-09-01', '2026-09-05', 'Johannesburg', 'South Africa', 'Active');
