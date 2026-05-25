@@ -458,6 +458,7 @@ async function loadGroupTrips() {
   }
 
   const trips = result.data || [];
+  updateGroupTripStats(trips);
 
   if (!trips.length) {
     grid.innerHTML = `<p class="empty-state">No group trips yet.</p>`;
@@ -541,6 +542,49 @@ async function deleteGroupTrip(groupTripID) {
     showMessage(result.message || "Could not delete group trip.", "error");
   }
 }
+
+function updateGroupTripStats(trips) {
+  const totalTrips = trips.length;
+
+  let totalMembers = 0;
+  let fullTrips = 0;
+
+  trips.forEach(function (trip) {
+    const members = parseInt(trip.currentMembers || 0);
+    const max = parseInt(trip.maxCapacity || 0);
+
+    totalMembers += members;
+
+    if (max > 0 && members >= max) {
+      fullTrips++;
+    }
+  });
+
+  const averageMembers = totalTrips > 0
+    ? (totalMembers / totalTrips).toFixed(1)
+    : "0";
+
+  const setText = function (id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = value;
+    }
+  };
+
+  setText("groupTripCount", totalTrips);
+  setText("tripCount", totalTrips);
+  setText("stat-trips", totalTrips);
+
+  setText("groupMemberCount", totalMembers);
+  setText("stat-group-members", totalMembers);
+
+  setText("avgGroupSize", averageMembers);
+  setText("stat-average-group-size", averageMembers);
+
+  setText("fullTripCount", fullTrips);
+  setText("stat-full-trips", fullTrips);
+}
+
 
 /* =========================
    DASHBOARD
