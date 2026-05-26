@@ -1,6 +1,5 @@
 <?php
-// LogIn.php
-// This file logs a user in by checking their email and password.
+// login.php
 
 session_start();
 
@@ -9,16 +8,13 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 
-// Browser sometimes sends an OPTIONS request before POST.
-// We stop here so the real POST can continue after.
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
-// Connect to database.
 require_once "config.php";
 
-// Get JSON input sent from auth.js.
+// Get JSON input from JavaScript fetch()
 $input = json_decode(file_get_contents("php://input"), true);
 
 if (!$input) {
@@ -29,11 +25,11 @@ if (!$input) {
     exit();
 }
 
-// Get email and password from request.
+// Get values from request
 $email = trim($input["email"] ?? "");
 $password = trim($input["password"] ?? "");
 
-// Validate email.
+// Basic validation
 if ($email === "") {
     echo json_encode([
         "success" => false,
@@ -50,7 +46,6 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit();
 }
 
-// Validate password.
 if ($password === "") {
     echo json_encode([
         "success" => false,
@@ -59,7 +54,12 @@ if ($password === "") {
     exit();
 }
 
-// Find the user with this email address.
+/*
+|--------------------------------------------------------------------------
+| THIS IS WHERE YOU ADD THE QUERY CODE
+|--------------------------------------------------------------------------
+| This searches the User table for the email address that was typed in.
+*/
 $stmt = $conn->prepare("
     SELECT userID, firstName, lastName, emailAddress, PasswordHash, userType
     FROM `User`
@@ -74,13 +74,16 @@ if (!$stmt) {
     exit();
 }
 
-// Bind email safely to prevent SQL injection.
 $stmt->bind_param("s", $email);
 $stmt->execute();
 
 $result = $stmt->get_result();
 
-// If no user was found, login fails.
+/*
+|--------------------------------------------------------------------------
+| CHECK IF EMAIL EXISTS
+|--------------------------------------------------------------------------
+*/
 if ($result->num_rows === 0) {
     echo json_encode([
         "success" => false,
@@ -91,7 +94,13 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-// Check typed password against the hashed password in the database.
+/*
+|--------------------------------------------------------------------------
+| THIS IS WHERE YOU ADD THE PASSWORD_VERIFY CODE
+|--------------------------------------------------------------------------
+| This checks the raw password typed by the user against the hashed password
+| stored in the PasswordHash column.
+*/
 if (!password_verify($password, $user["PasswordHash"])) {
     echo json_encode([
         "success" => false,
@@ -100,13 +109,17 @@ if (!password_verify($password, $user["PasswordHash"])) {
     exit();
 }
 
-// Save user details in PHP session.
+/*
+|--------------------------------------------------------------------------
+| LOGIN SUCCESSFUL
+|--------------------------------------------------------------------------
+| If the code reaches this point, the email exists and the password is correct.
+*/
 $_SESSION["userID"] = $user["userID"];
 $_SESSION["emailAddress"] = $user["emailAddress"];
 $_SESSION["userType"] = $user["userType"];
 $_SESSION["firstName"] = $user["firstName"];
 
-// Return logged-in user details to frontend.
 echo json_encode([
     "success" => true,
     "message" => "Login successful",
