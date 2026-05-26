@@ -1,4 +1,5 @@
 <?php
+//coded by Micahael Harding
 require_once __DIR__ . "/config.php";
 header("Content-Type: application/json");
 
