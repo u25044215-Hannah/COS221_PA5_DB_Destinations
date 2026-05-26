@@ -1,5 +1,5 @@
 <?php
-// config.php
+// coded by Hannah Diedrick
 // This file connects the project to the MariaDB database.
 
 // Path to the .env file.
