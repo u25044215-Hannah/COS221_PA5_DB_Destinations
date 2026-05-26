@@ -1,3 +1,4 @@
+//Hannah Diedrick
 // auth.js
 
 function getCurrentUser() {
