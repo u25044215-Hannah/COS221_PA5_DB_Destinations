@@ -1,6 +1,6 @@
 <?php
 // login.php
-
+//Hannah Diedrick
 session_start();
 
 header("Content-Type: application/json");
