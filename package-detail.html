@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Package Detail — Tripistry</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/detail.css" />
+
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-logo">
+  <img src="images/logo.png" alt="Tripistry Logo" class="nav-logo-img">
+</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="browse.html">Browse Packages</a></li>
+      <li><a href="compare.html">Compare</a></li>
+      <li><a href="bookings.html">My Bookings</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-outline btn-sm">Log In</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Sign Up</a>
+    </div>
+  </nav>
+
+  <div class="detail-hero" id="detail-hero">
+    <div class="detail-hero-overlay"></div>
+    <div class="container detail-hero-content">
+      <div class="detail-hero-badges" id="detail-badges"></div>
+      <h1 class="detail-title" id="detail-title">Loading…</h1>
+      <div class="detail-hero-meta" id="detail-hero-meta"></div>
+    </div>
+  </div>
+
+  <div class="detail-layout container">
+
+    <div class="detail-main">
+
+      <section class="detail-section">
+        <h2 class="detail-section-title">Overview</h2>
+        <p class="detail-description" id="detail-description"></p>
+        <div class="detail-highlights" id="detail-highlights"></div>
+      </section>
+
+      <section class="detail-section">
+        <h2 class="detail-section-title">Day-by-Day Itinerary</h2>
+        <div class="itinerary-list" id="detail-itinerary"></div>
+      </section>
+
+      <section class="detail-section">
+        <h2 class="detail-section-title">Accommodation</h2>
+        <div class="detail-accomm-card" id="detail-accomm"></div>
+      </section>
+
+      <section class="detail-section">
+        <h2 class="detail-section-title">Included Restaurants</h2>
+        <div class="detail-grid-2" id="detail-restaurants"></div>
+      </section>
+
+      <section class="detail-section">
+        <h2 class="detail-section-title">Excursions & Activities</h2>
+        <div class="detail-grid-2" id="detail-excursions"></div>
+      </section>
+
+      <section class="detail-section">
+        <h2 class="detail-section-title">Traveller Reviews</h2>
+        <div class="reviews-summary" id="reviews-summary"></div>
+        <div class="detail-reviews-list" id="detail-reviews"></div>
+        <div class="text-center mt-8">
+          <a href="review.html" class="btn btn-outline">Leave a Review</a>
+        </div>
+      </section>
+
+    </div>
+
+    <aside class="detail-sidebar">
+      <div class="booking-card" id="booking-card">
+        <div class="booking-card-header">
+          <div class="booking-price-big" id="sidebar-price"></div>
+          <div class="booking-rating" id="sidebar-rating"></div>
+        </div>
+
+        <div class="booking-card-body">
+          <div class="booking-info-row"><span> Dates</span><span id="sidebar-dates">—</span></div>
+          <div class="booking-info-row"><span>Duration</span><span id="sidebar-duration">—</span></div>
+          <div class="booking-info-row"><span>Max Guests</span><span id="sidebar-capacity">—</span></div>
+          <div class="booking-info-row"><span>Flight</span><span id="sidebar-flight">—</span></div>
+          <div class="booking-info-row"><span>Accomm.</span><span id="sidebar-accomm">—</span></div>
+          <div class="booking-info-row"><span>Agency</span><span id="sidebar-agency">—</span></div>
+        </div>
+
+        <div class="booking-guests-row">
+          <label for="guest-count-sidebar">Number of Guests</label>
+          <div class="guest-counter">
+            <button class="guest-btn" id="guest-minus">-</button>
+            <input type="number" id="guest-count-sidebar" value="1" min="1" max="20" />
+            <button class="guest-btn" id="guest-plus">+</button>
+          </div>
+        </div>
+
+        <div class="booking-total" id="booking-total-sidebar">
+          Total: <strong>—</strong>
+        </div>
+
+        <a href="#" class="btn btn-primary" style="width:100%;text-align:center" id="book-now-btn">
+          Book Now
+        </a>
+        <button class="btn btn-ghost" style="width:100%;margin-top:8px" id="compare-sidebar-btn">
+          + Add to Compare
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/detail.js"></script>
+
+  <script src="api_client.js"></script>
+  <script src="packages_api.js"></script>
+  <script src="detail_backend.js"></script>
+</body>
+</html>

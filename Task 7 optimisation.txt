@@ -1,0 +1,37 @@
+Created by Michael Harding
+For the optimisation task, I analysed the execution plan of a traveller package browsing query using the MariaDB EXPLAIN command. The query retrieves active travel packages for a selected destination, joins the Package and Review tables, calculates the average package rating and sorts the results by price.
+
+The query analysed was:
+
+SELECT 
+    p.packageID,
+    p.title,
+    p.destinationCountry,
+    p.pricePerPerson,
+    AVG(r.overallScore) AS avgRating
+FROM Package p
+LEFT JOIN Review r 
+ON p.packageID = r.packageID
+WHERE p.status = 'Active'
+AND p.destinationCountry = 'South Africa'
+GROUP BY p.packageID
+ORDER BY p.pricePerPerson ASC;
+
+Before optimisation, the execution plan showed that MariaDB performed more row scanning when filtering and sorting package data. This is because the relevant columns used in filtering, joining and ordering were not indexed. As the database grows larger, full table scans become increasingly inefficient and negatively impact query performance.
+
+To optimise the query, indexes were added to improve filtering, joins and sorting operations. The following indexes were implemented:
+
+CREATE INDEX idx_package_filter
+ON Package(destinationCountry, destinationCity, pricePerPerson, startDate, endDate, status);
+
+CREATE INDEX idx_review_package
+ON Review(packageID, overallScore);
+
+CREATE INDEX idx_booking_user_package
+ON Booking(userID, packageID);
+
+After implementing the indexes, the EXPLAIN query execution plan showed improved usage of indexed columns and reduced dependency on full table scans. The query execution became more efficient because the database engine could directly access matching rows instead of scanning unnecessary records.
+
+The observed performance gain was mainly due to faster filtering by destination and status, as well as more efficient joins between the Package and Review tables. Sorting by price also became more efficient because the indexed columns helped reduce the amount of data processed during ordering operations.
+
+The performance improvement may not appear very large with the current sample dataset because the database does not yet contain extremely large amounts of data. However, with larger real-world datasets containing thousands of packages, reviews and bookings, the indexes would provide a much more significant reduction in query execution time and resource usage.

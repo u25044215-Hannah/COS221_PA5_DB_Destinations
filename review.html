@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Leave a Review — Tripistry</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/review.css" />
+
+  
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo.png" alt="Tripistry Logo" class="nav-logo-img">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="browse.html">Browse Packages</a></li>
+      <li><a href="compare.html">Compare</a></li>
+      <li><a href="bookings.html">My Bookings</a></li>
+      <li><a href="review.html" class="active">Review</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-outline btn-sm">Log In</a>
+      <a href="signup.html" class="btn btn-primary btn-sm">Sign Up</a>
+    </div>
+  </nav>
+
+  <section class="review-hero">
+    <div class="container">
+      <span class="eyebrow">Traveller Feedback</span>
+      <h1>Leave a Review</h1>
+      <p>Share your experience.</p>
+    </div>
+  </section>
+
+  <main class="container review-layout">
+
+    <section class="review-card">
+
+      <div class="review-intro">
+        <h2>Review Your Trip</h2>
+      </div>
+
+      <form class="review-form" action="#" method="post">
+
+        <input type="hidden" name="bookingID" value="">
+        <input type="hidden" name="packageID" value="">
+        <input type="hidden" name="agencyID" value="">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="packageName">Package</label>
+            <input 
+              type="text" 
+              id="packageName" 
+              name="packageName" 
+              placeholder="Insert selected package name"
+              readonly
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="agencyName">Agency</label>
+            <input 
+              type="text" 
+              id="agencyName" 
+              name="agencyName" 
+              placeholder="Insert agency name"
+              readonly
+            >
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="overallScore">Overall Rating</label>
+            <select id="overallScore" name="overallScore" required>
+              <option value="">Select rating</option>
+             <option value="5">5t</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="serviceScore">Service Rating</label>
+            <select id="serviceScore" name="serviceScore" required>
+              <option value="">Select rating</option>
+              <option value="5">5t</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cleanlinessScore">Cleanliness Rating</label>
+            <select id="cleanlinessScore" name="cleanlinessScore" required>
+              <option value="">Select rating</option>
+              <option value="5">5t</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recommendScore">Would Recommend?</label>
+            <select id="recommendScore" name="recommendScore">
+              <option value="">Select option</option>
+              <option value="yes">Yes, I would recommend it</option>
+              <option value="maybe">Maybe</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="comment">Your Review</label>
+          <textarea 
+            id="comment" 
+            name="comment" 
+            rows="6" 
+            maxlength="1000"
+            placeholder="Tell other travellers about your experience..."
+            required
+          ></textarea>
+          <small>Maximum 1000 characters.</small>
+        </div>
+
+        <div class="review-actions">
+          <a href="my-bookings.html" class="btn btn-soft">Cancel</a>
+          <button type="submit" class="btn btn-primary">Submit Review</button>
+        </div>
+
+      </form>
+
+    </section>
+
+  </main>
+
+  <script src="api_client.js"></script>
+  <script src="review_backend.js"></script>
+  <script src="auth.js"></script>
+
+</body>
+</html>

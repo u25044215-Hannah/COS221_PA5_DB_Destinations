@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up — Tripistry</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+
+</head>
+<body>
+
+  <div class="auth-page">
+
+    <div class="auth-left">
+      <video autoplay muted loop playsinline class="auth-video">
+        <source src="images/PrettyBackground.mp4" type="video/mp4">
+      </video>
+
+      <div class="auth-overlay"></div>
+
+      <div class="auth-brand">
+        <img src="images/logo.png" alt="Tripistry" class="auth-logo">
+        <h1>Start Exploring</h1>
+        <p>Create your Tripistry traveller account.</p>
+      </div>
+    </div>
+
+    <div class="auth-right">
+
+      <form class="auth-card" id="signupForm">
+
+        <h2>Create Account</h2>
+
+        <div class="form-group">
+          <label>First Name</label>
+          <input id="signupName" type="text" placeholder="Enter first name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Surname</label>
+          <input id="signupSurname" type="text" placeholder="Enter surname" required>
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input id="signupEmail" type="email" placeholder="Enter email" required>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input id="signupPassword" type="password" placeholder="Create password" required>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input id="signupConfirmPassword" type="password" placeholder="Confirm password" required>
+        </div>
+
+        <input type="hidden" id="signupUserType" value="Traveller">
+
+        <button type="submit" class="btn btn-primary auth-btn">
+          Create Account
+        </button>
+
+        <p class="auth-switch">
+          Already have an account?
+          <a href="login.html">Log In</a>
+        </p>
+
+      </form>
+    </div>
+  </div>
+
+  <script src="api_client.js" defer></script>
+  <script src="auth.js" defer></script>
+
+</body>
+</html></body>
+</html>
