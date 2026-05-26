@@ -1,3 +1,4 @@
+//Coded by Hannah Diedrick
 // browse_backend.js
 // Pulls package data + dropdown filter data from the database through api.php
 
