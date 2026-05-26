@@ -1,3 +1,4 @@
+//Coded by Hannah Diedrick
 // bookings_backend.js
 // This connects bookings.html to the user's bookings in the backend.
 
