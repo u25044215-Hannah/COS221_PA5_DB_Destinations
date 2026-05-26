@@ -1,3 +1,4 @@
+Created by Michael Harding
 For the optimisation task, I analysed the execution plan of a traveller package browsing query using the MariaDB EXPLAIN command. The query retrieves active travel packages for a selected destination, joins the Package and Review tables, calculates the average package rating and sorts the results by price.
 
 The query analysed was:
