@@ -1,5 +1,8 @@
+// Base URL for API requests.
+// Empty means the API files are in the same folder/server location as the frontend.
 const API_BASE = "";
 
+// Gets the currently logged-in user from localStorage.
 function getCurrentUser() {
   try {
     return JSON.parse(localStorage.getItem("tripistryUser") || "null");
@@ -8,10 +11,13 @@ function getCurrentUser() {
   }
 }
 
+// Saves the logged-in user object into localStorage.
 function setCurrentUser(user) {
   localStorage.setItem("tripistryUser", JSON.stringify(user));
 }
 
+// Checks if a user is logged in.
+// If not, redirects them to the login page.
 function requireLogin() {
   const user = getCurrentUser();
 
@@ -24,6 +30,8 @@ function requireLogin() {
   return user;
 }
 
+// Sends a GET request to the backend API.
+// params are converted into a query string.
 async function apiGet(path, params = {}) {
   const qs = new URLSearchParams(params).toString();
 
@@ -34,6 +42,8 @@ async function apiGet(path, params = {}) {
   return response.json();
 }
 
+// Sends a POST request to the backend API.
+// data is sent as JSON in the request body.
 async function apiPost(path, data = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     method: "POST",
@@ -47,11 +57,15 @@ async function apiPost(path, data = {}) {
   return response.json();
 }
 
+// Formats a number as a money value.
+// Default currency is ZAR.
 function money(value, currency = "ZAR") {
   const number = Number(value || 0);
   return `${currency} ${number.toLocaleString()}`;
 }
 
+// Converts package data from the backend into a consistent format
+// that the frontend pages can easily use.
 function normalisePackage(p) {
   return {
     ...p,
@@ -65,6 +79,7 @@ function normalisePackage(p) {
   };
 }
 
+// Gets the saved package comparison list from localStorage.
 function getCompareList() {
   try {
     return JSON.parse(localStorage.getItem("tripistryCompare") || "[]");
@@ -73,6 +88,8 @@ function getCompareList() {
   }
 }
 
+// Saves the comparison list to localStorage.
+// Removes duplicates and limits the list to 4 packages.
 function setCompareList(list) {
   localStorage.setItem(
     "tripistryCompare",
@@ -80,6 +97,7 @@ function setCompareList(list) {
   );
 }
 
+// Adds a package ID to the comparison list.
 function addToCompare(id) {
   const list = getCompareList();
   const packageID = Number(id);

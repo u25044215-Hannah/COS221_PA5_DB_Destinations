@@ -986,3 +986,28 @@ section,
     width: 100% !important;
   }
 }
+
+.rating-filter-btn {
+  color: #2f3a3a !important;
+  background: #ffffff !important;
+  border: 2px solid #e6eeee;
+  border-radius: 999px;
+  padding: 12px 26px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 90px;
+  box-shadow: 0 10px 25px rgba(66, 103, 80, 0.12);
+}
+
+.rating-filter-btn.active {
+  color: #ffffff !important;
+  background: #4f7f45 !important;
+  border-color: #4f7f45;
+}
+
+.rating-filter-btn:hover {
+  color: #ffffff !important;
+  background: #5f9254 !important;
+  border-color: #5f9254;
+}

@@ -8,15 +8,14 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/auth.css" />
 </head>
-
 <body>
+
   <div class="auth-page">
 
     <div class="auth-left">
       <video autoplay muted loop playsinline class="auth-video">
         <source src="images/PrettyBackground.mp4" type="video/mp4">
       </video>
-
       <div class="auth-overlay"></div>
 
       <div class="auth-brand">
@@ -27,30 +26,19 @@
     </div>
 
     <div class="auth-right">
-      <form class="auth-card" id="loginForm">
+
+      <form class="auth-card">
 
         <h2>Log In</h2>
 
         <div class="form-group">
-          <label for="email">Email Address</label>
-          <input 
-            type="email" 
-            id="email" 
-            name="email"
-            placeholder="Enter your email"
-            required
-          >
+          <label>Email Address</label>
+          <input type="email" placeholder="Enter your email">
         </div>
 
         <div class="form-group">
-          <label for="password">Password</label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password"
-            placeholder="Enter password"
-            required
-          >
+          <label>Password</label>
+          <input type="password" placeholder="Enter password">
         </div>
 
         <button type="submit" class="btn btn-primary auth-btn">
@@ -61,14 +49,13 @@
           Don’t have an account?
           <a href="signup.html">Create Account</a>
         </p>
+     </form>
 
-      </form>
     </div>
-
   </div>
 
+  <script src="api_client.js"></script>
   <script src="auth.js"></script>
-</body>
-</html>
+
 </body>
 </html>
