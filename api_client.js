@@ -1,3 +1,4 @@
+//Hannah Diedrick
 // Base URL for API requests.
 // Empty means the API files are in the same folder/server location as the frontend.
 const API_BASE = "";
