@@ -1,3 +1,4 @@
+//coded by Hannah Diedrick
 // compare_backend.js
 
 document.addEventListener("DOMContentLoaded", async () => {
